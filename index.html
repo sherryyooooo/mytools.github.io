@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IT 工具箱</title>
+  <style>
+    /* 全域 CSS 變數與樣式 */
+    :root {
+      --bg: #f5f5f7; --card: #ffffff; --text: #1d1d1f; --sub: #86868b;
+      --border: #e5e5ea; --blue: #007AFF; --green: #34C759;
+      --radius: 14px; --shadow: 0 1px 4px rgba(0,0,0,0.08);
+      --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+
+    /* Layout */
+    .site-header {
+      background: var(--card); border-bottom: 1px solid var(--border);
+      padding: 16px 24px; position: sticky; top: 0; z-index: 100;
+    }
+    .site-header .inner { max-width: 960px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    
+    .page-container { max-width: 960px; margin: 0 auto; padding: 32px 24px; }
+
+    /* Home Grid */
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .tool-card {
+      background: var(--card); border-radius: var(--radius); padding: 24px;
+      box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s;
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .tool-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .card-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .card-title { font-size: 16px; font-weight: 600; }
+    .card-desc { font-size: 13px; color: var(--sub); line-height: 1.5; }
+
+    /* Page Transitions */
+    .view-content { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="inner">
+    <div class="logo" onclick="showHome()">
+      <span>🧰</span><span>IT 工具箱</span>
+    </div>
+  </div>
+</header>
+
+<main class="page-container">
+  <div id="view-home">
+    <h1 style="font-size: 28px; margin-bottom: 6px;">工具總覽</h1>
+    <p style="color: var(--sub); margin-bottom: 28px;">選擇一個工具開始使用</p>
+    <div class="tool-grid" id="toolGrid"></div>
+  </div>
+
+  <div id="view-tool" class="hidden view-content">
+    <div id="tool-content-mount"></div>
+  </div>
+</main>
+
+<script>
+  // 工具註冊表：未來新增功能只需在這裡加一筆資料
+  const tools = [
+    {
+      id: 'ios-report',
+      title: 'iOS 使用人數表',
+      desc: '上傳 Firebase CSV，自動整理版本分佈與大版本佔比統計報表',
+      icon: '📊',
+      bg: '#E8F0FE',
+      file: 'tools/ios-report.html' // 對應的獨立檔案路徑
+    }
+  ];
+
+  function renderHome() {
+    const grid = document.getElementById('toolGrid');
+    grid.innerHTML = tools.map(t => `
+      <div class="tool-card" onclick="loadTool('${t.id}')">
+        <div class="card-icon" style="background:${t.bg}">${t.icon}</div>
+        <div class="card-title">${t.title}</div>
+        <div class="card-desc">${t.desc}</div>
+        <div style="color:var(--sub); font-size:13px; margin-top:auto;">開啟工具 →</div>
+      </div>
+    `).join('');
+  }
+
+  async function loadTool(toolId) {
+    const tool = tools.find(t => t.id === toolId);
+    if (!tool) return;
+
+    try {
+      const response = await fetch(tool.file);
+      const html = await response.text();
+      
+      // 切換視圖
+      document.getElementById('view-home').classList.add('hidden');
+      document.getElementById('view-tool').classList.remove('hidden');
+      
+      // 注入內容並執行裡面的 Script
+      const mountPoint = document.getElementById('tool-content-mount');
+      mountPoint.innerHTML = html;
+      
+      // 手動執行注入的 Script 段落
+      const scripts = mountPoint.querySelectorAll('script');
+      scripts.forEach(oldScript => {
+        const newScript = document.createElement('script');
+        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+        oldScript.parentNode.replaceChild(newScript, oldScript);
+      });
+
+      window.scrollTo(0, 0);
+    } catch (err) {
+      console.error('載入工具失敗:', err);
+      alert('工具載入失敗，請確認檔案路徑是否正確（需在伺服器環境執行，如 Live Server）');
+    }
+  }
+
+  function showHome() {
+    document.getElementById('view-tool').classList.add('hidden');
+    document.getElementById('view-home').classList.remove('hidden');
+    document.getElementById('tool-content-mount').innerHTML = ''; // 清空內容釋放資源
+  }
+
+  // 初始化
+  renderHome();
+</script>
+
+</body>
+</html>
