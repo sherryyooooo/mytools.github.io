@@ -1,262 +1,366 @@
-<div class="match-tool-sub">
-    <style>
-        .match-tool-sub { --red-bg: #fce4e4; --blue-bg: #e1f5fe; --movie-text: #d32f2f; --ad-text: #0288d1; font-family: "Microsoft JhengHei", sans-serif; color: #333; background: #fff; padding: 15px; border-radius: 8px; }
-        .match-tool-sub .input-section { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .match-tool-sub .player-group { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
-        
-        .match-tool-sub .box { display: flex; flex-direction: column; align-items: stretch; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; background: #fff; }
-        .match-tool-sub .box span { display: block; text-align: center; padding: 8px; font-weight: bold; font-size: 0.9em; border-bottom: 1px solid #ddd; }
-        .match-tool-sub .box-movie span { background: #ffebee; color: var(--movie-text); }
-        .match-tool-sub .box-ad span { background: #e1f5fe; color: var(--ad-text); }
-        
-        .match-tool-sub textarea { width: 100%; height: 80px; border: none; padding: 8px; font-size: 11px; resize: none; box-sizing: border-box; display: block; background: #fff; }
-        .match-tool-sub .btn-paste { width: 100%; padding: 6px 0; font-size: 11px; background: #f9f9f9; border: none; border-top: 1px solid #eee; cursor: pointer; color: #777; font-weight: bold; transition: background 0.2s; }
-        .match-tool-sub .btn-paste:hover { background: #f0f0f0; color: #333; }
-        
-        .match-tool-sub .btn-wrap { text-align: center; margin-bottom: 10px; }
-        .match-tool-sub #matchBtn { background: #ffcc80; border: 1px solid #fb8c00; padding: 8px 60px; font-size: 1.1em; cursor: pointer; border-radius: 20px; font-weight: bold; transition: 0.3s; margin-top: 10px; }
-        .match-tool-sub #matchBtn:disabled { background: #ccc; border-color: #999; cursor: not-allowed; }
-        
-        .match-tool-sub .main-display { display: flex; gap: 15px; }
-        .match-tool-sub .table-column { flex: 1; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
-        .match-tool-sub .column-header { text-align: center; padding: 8px; font-weight: bold; font-size: 0.9em; }
-        .match-tool-sub .header-movie { background: #ffebee; color: var(--movie-text); }
-        .match-tool-sub .header-ad { background: #e1f5fe; color: var(--ad-text); }
-        .match-tool-sub .table-wrapper { max-height: 50vh; overflow-y: auto; }
-        
-        .match-tool-sub table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        .match-tool-sub th { background: #f5f5f5; border-bottom: 1px solid #ddd; padding: 5px; font-size: 0.85em; position: sticky; top: 0; }
-        .match-tool-sub td { border-bottom: 1px solid #eee; padding: 4px 5px; text-align: center; font-size: 0.95em; height: 26px; }
-        .match-tool-sub .txt-movie { color: var(--movie-text); font-weight: bold; }
-        .match-tool-sub .txt-ad { color: var(--ad-text); font-weight: bold; }
-        .match-tool-sub .not-matched { opacity: 0.3; filter: grayscale(1); font-weight: normal !important; }
-        .match-tool-sub .empty-cell { color: #ccc !important; font-style: italic; }
+<style>
+  /* 全域基礎設定 */
+  .match-container { 
+    --red-bg: #FFEBEB; 
+    --blue-bg: #E1F5FE; 
+    --movie-text: #B71C1C; 
+    --ad-text: #01579B; 
+    --radius: 5px; /* 統一圓角角度 */
+    font-family: "Microsoft JhengHei", sans-serif; 
+    color: #333;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
 
-        .match-tool-sub .summary-box { margin-top: 10px; display: flex; justify-content: flex-end; align-items: center; gap: 15px; padding: 8px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px; font-size: 0.9em; }
-        .match-tool-sub .diff-val { font-size: 1.1em; padding: 2px 8px; border-radius: 4px; font-weight: 800; }
-        .match-tool-sub .ideal { background: #e8f5e9; color: #2e7d32; border: 1px solid #2e7d32; }
-        .match-tool-sub .warning { background: #ffebee; color: #c62828; border: 1px solid #c62828; }
-        
-        .match-tool-sub .tag { display: inline-block; padding: 1px 5px; margin: 1px; border-radius: 3px; font-size: 0.8em; font-weight: bold; border: 1px solid #ddd; }
-        .match-tool-sub .tag-red { background: var(--red-bg); color: var(--movie-text); }
-        .match-tool-sub .tag-blue { background: var(--blue-bg); color: var(--ad-text); }
-        .match-tool-sub #loadingOverlay { display: none; color: #fb8c00; font-weight: bold; margin-bottom: 5px; font-size: 0.9em; }
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; color: #666; cursor: pointer; border: none; background: none; margin-bottom: 15px; font-size: 14px; font-weight: 600; }
+  .tool-page-header { margin-bottom: 24px; }
+  .tool-page-header h1 { font-size: 22px; margin-bottom: 8px; }
+  .tool-page-header p { color: #888; font-size: 14px; }
+  
+  /* 輸入區域卡片 */
+  .input-card { background: #fff; border-radius: var(--radius); padding: 20px; border: 1px solid #eee; margin-bottom: 24px; }
+  .player-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .player-section-title { font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #444; }
+  
+  .box-wrapper { display: flex; flex-direction: column; gap: 12px; }
+  .input-box { border: 1px solid #efefef; border-radius: var(--radius); overflow: hidden; }
+  
+  .box-header { padding: 8px 12px; font-size: 13px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+  .header-m { background: var(--red-bg); color: var(--movie-text); }
+  .header-a { background: var(--blue-bg); color: var(--ad-text); }
+  
+  textarea { width: 100%; height: 85px; border: none; padding: 10px; font-size: 13px; resize: none; outline: none; background: #fff; box-sizing: border-box; display: block; }
+  
+  /* 按鈕風格：無邊框、底色、深色文字、8px圓角 */
+  .btn-paste { background: rgba(255,255,255,0.5); border: none; padding: 3px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; color: inherit; font-weight: bold; }
 
-        @media (max-width: 768px) {
-            .match-tool-sub .input-section, .match-tool-sub .main-display { grid-template-columns: 1fr; flex-direction: column; }
-        }
-    </style>
+  .action-area { text-align: center; margin: 24px 0; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  
+  /* 執行比對按鈕 */
+  .generate-btn { 
+    background: #FFF3E0; 
+    color: #E65100; 
+    border: none; 
+    border-radius: var(--radius); 
+    padding: 12px 60px; 
+    font-weight: bold; 
+    cursor: pointer; 
+    font-size: 17px; 
+    transition: 0.2s; 
+  }
+  .generate-btn:hover { background: #FFE0B2; }
+  
+  /* 全部清空按鈕 */
+  .clear-btn { 
+    background: #F5F5F5; 
+    color: #666; 
+    border: none; 
+    border-radius: var(--radius); 
+    padding: 6px 20px; 
+    font-size: 13px; 
+    cursor: pointer; 
+    font-weight: 600;
+  }
+  .clear-btn:hover { background: #EEEEEE; color: #d32f2f; }
 
-    <div class="input-section">
-        <div class="player-group">
-            <div class="box box-movie">
-                <span>對方影視 (B Movie)</span>
-                <textarea id="oppM" placeholder="貼上數值..."></textarea>
-                <button class="btn-paste" onclick="pasteTo('oppM')">📋 貼上</button>
-            </div>
-            <div class="box box-ad">
-                <span>對方廣告 (B Ad)</span>
-                <textarea id="oppA" placeholder="貼上數值..."></textarea>
-                <button class="btn-paste" onclick="pasteTo('oppA')">📋 貼上</button>
-            </div>
+  #loadingOverlay { color: #E65100; font-size: 14px; font-weight: bold; display: none; margin-bottom: 5px; }
+
+  /* 比對結果表格 */
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .table-card { background: #fff; border-radius: var(--radius); overflow: hidden; border: 1px solid #eee; }
+  .table-header { padding: 10px; text-align: center; font-weight: bold; font-size: 14px; }
+  
+  table { width: 100%; border-collapse: collapse; }
+  th { background: #fafafa; padding: 8px; font-size: 12px; color: #999; border-bottom: 1px solid #eee; }
+  td { padding: 8px; text-align: center; font-size: 14px; border-bottom: 1px solid #fcfcfc; }
+  
+  .txt-movie { color: var(--movie-text); font-weight: bold; }
+  .txt-ad { color: var(--ad-text); font-weight: bold; }
+  .not-matched { opacity: 0.2; }
+
+  /* 統計區塊：統一圓角與風格 */
+  .summary-box { 
+    margin-top: 24px; 
+    padding: 20px; 
+    background: #fff; 
+    border: 1px solid #eee; 
+    border-radius: var(--radius);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  .stat-item { text-align: center; }
+  .stat-label { font-size: 12px; color: #888; margin-bottom: 6px; display: block; font-weight: 600; }
+  .stat-value { font-size: 18px; font-weight: bold; color: #333; }
+  
+  /* 誤差數值樣式：無邊框有底色 */
+  .diff-val { 
+    display: inline-block;
+    font-size: 20px; 
+    padding: 6px 16px; 
+    border-radius: var(--radius); 
+    font-weight: 800;
+  }
+  .ideal { background: #E8F5E9; color: #2E7D32; }
+  .warning { background: #FFEBEE; color: #C62828; }
+
+  /* 剩餘區塊 */
+  .remain-section { margin-top: 20px; padding: 16px; background: #fafafa; border-radius: var(--radius); border: 1px solid #eee; }
+  .tag { display: inline-block; padding: 3px 8px; margin: 2px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+  .tag-red { background: var(--red-bg); color: var(--movie-text); }
+  .tag-blue { background: var(--blue-bg); color: var(--ad-text); }
+
+  @media (max-width: 768px) { .player-grid, .result-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="match-container">
+  <button class="back-btn" onclick="showHome()">
+    <svg width="18" height="18" viewBox="0 0 20 20"><path fill="currentColor" d="M12.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z"/></svg>
+    返回工具總覽
+  </button>
+
+  <div class="tool-page-header">
+    <h1>⚖️ 時光雜貨店作品比對器</h1>
+    <p>設定目標誤差於 100 內，自動媒合最大化配對組合</p>
+  </div>
+
+  <div class="input-card">
+    <div class="player-grid">
+      <div class="box-wrapper">
+        <div class="player-section-title">對方數據 (Player B)</div>
+        <div class="input-box">
+          <div class="box-header header-m">對方影視 (B Movie) <button class="btn-paste" onclick="pasteTo('oppM')">貼上</button></div>
+          <textarea id="oppM" placeholder="數值..."></textarea>
         </div>
-        <div class="player-group">
-            <div class="box box-movie">
-                <span>我的影視 (A Movie)</span>
-                <textarea id="myM" placeholder="貼上數值..."></textarea>
-                <button class="btn-paste" onclick="pasteTo('myM')">📋 貼上</button>
-            </div>
-            <div class="box box-ad">
-                <span>我的廣告 (A Ad)</span>
-                <textarea id="myA" placeholder="貼上數值..."></textarea>
-                <button class="btn-paste" onclick="pasteTo('myA')">📋 貼上</button>
-            </div>
+        <div class="input-box">
+          <div class="box-header header-a">對方廣告 (B Ad) <button class="btn-paste" onclick="pasteTo('oppA')">貼上</button></div>
+          <textarea id="oppA" placeholder="數值..."></textarea>
         </div>
-    </div>
+      </div>
 
-    <div class="btn-wrap">
-        <div id="loadingOverlay">正在精確計算中，請稍候...</div>
-        <button id="matchBtn" onclick="prepareMatching()">執行精準比對</button>
-    </div>
-    
-    <div class="main-display">
-        <div class="table-column">
-            <div class="column-header header-movie">🎬 對方(影) 與 我的(廣)</div>
-            <div class="table-wrapper">
-                <table>
-                    <thead><tr><th>對方(影)</th><th>我的(廣)</th></tr></thead>
-                    <tbody id="movieBody"></tbody>
-                </table>
-            </div>
+      <div class="box-wrapper">
+        <div class="player-section-title">我的數據 (Player A)</div>
+        <div class="input-box">
+          <div class="box-header header-m">我的影視 (A Movie) <button class="btn-paste" onclick="pasteTo('myM')">貼上</button></div>
+          <textarea id="myM" placeholder="數值..."></textarea>
         </div>
-        <div class="table-column">
-            <div class="column-header header-ad">📺 對方(廣) 與 我的(影)</div>
-            <div class="table-wrapper">
-                <table>
-                    <thead><tr><th>對方(廣)</th><th>我的(影)</th></tr></thead>
-                    <tbody id="adBody"></tbody>
-                </table>
-            </div>
+        <div class="input-box">
+          <div class="box-header header-a">我的廣告 (A Ad) <button class="btn-paste" onclick="pasteTo('myA')">貼上</button></div>
+          <textarea id="myA" placeholder="數值..."></textarea>
         </div>
+      </div>
     </div>
 
-    <div id="summaryArea" class="summary-box" style="display:none;">
-        <div>配對: <strong id="pairCount">0</strong></div>
-        <div>誤差: <span id="sumDiff" class="diff-val">0</span></div>
+    <div class="action-area">
+      <div id="loadingOverlay">⚡ 運算中...</div>
+      <button id="matchBtn" class="generate-btn" onclick="prepareMatching()">⚖️ 執行精準比對</button>
+      <button class="clear-btn" onclick="clearAll()">全部清空</button>
     </div>
-    
-    <div id="remainArea" style="margin-top:10px; display:none;">
-        <div id="oppRemain" style="margin-bottom:8px;"></div>
-        <div id="myRemain"></div>
+  </div>
+
+  <div class="result-grid">
+    <div class="table-card">
+      <div class="table-header header-m">對方(影) ↔ 我的(廣)</div>
+      <table>
+        <thead><tr><th>對方影視</th><th>我的廣告</th></tr></thead>
+        <tbody id="movieBody"></tbody>
+      </table>
     </div>
+    <div class="table-card">
+      <div class="table-header header-a">對方(廣) ↔ 我的(影)</div>
+      <table>
+        <thead><tr><th>對方廣告</th><th>我的影視</th></tr></thead>
+        <tbody id="adBody"></tbody>
+      </table>
+    </div>
+  </div>
 
-    <script>
-        // 使用匿名函數包裹避免變數污染全域
-        (function() {
-            window.pasteTo = async function(id) {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    const optimizedText = text.trim().replace(/[\r\n\t\s]+/g, ' ');
-                    document.getElementById(id).value = optimizedText;
-                } catch (err) { alert('無法存取剪貼簿'); }
-            };
-
-            window.prepareMatching = function() {
-                const btn = document.getElementById('matchBtn');
-                const loading = document.getElementById('loadingOverlay');
-                btn.disabled = true;
-                loading.style.display = 'block';
-                setTimeout(() => {
-                    startMatching();
-                    btn.disabled = false;
-                    loading.style.display = 'none';
-                }, 100);
-            };
-
-            function parseInput(id) {
-                return document.getElementById(id).value.trim().split(/\s+/)
-                    .filter(s => s !== "" && !isNaN(s))
-                    .map((v, i) => ({ id: `${id}_${i}`, val: Number(v), origin: id }));
-            }
-
-            function startMatching() {
-                const oppM = parseInput('oppM');
-                const oppA = parseInput('oppA');
-                const myM = parseInput('myM');
-                const myA = parseInput('myA');
-
-                let edges = [];
-                myM.forEach(a => oppA.forEach(b => {
-                    if (Math.max(a.val, b.val) / Math.min(a.val, b.val) <= 5) edges.push({ a, b });
-                }));
-                oppM.forEach(b => myA.forEach(a => {
-                    if (Math.max(a.val, b.val) / Math.min(a.val, b.val) <= 5) edges.push({ a, b });
-                }));
-
-                let bestResult = { pairs: [], error: Infinity, count: 0, score: -1 };
-                const maxPossiblePairs = Math.min(myM.length + myA.length, oppM.length + oppA.length);
-
-                for (let targetCount = maxPossiblePairs; targetCount >= 1; targetCount--) {
-                    if (bestResult.count > targetCount && bestResult.error <= 100) break;
-                    for (let attempt = 0; attempt < 800; attempt++) {
-                        let currentPairs = [];
-                        let usedIds = new Set();
-                        let shuffledEdges = [...edges].sort(() => Math.random() - 0.5);
-                        for (let e of shuffledEdges) {
-                            if (currentPairs.length < targetCount && !usedIds.has(e.a.id) && !usedIds.has(e.b.id)) {
-                                currentPairs.push({...e});
-                                usedIds.add(e.a.id);
-                                usedIds.add(e.b.id);
-                            }
-                        }
-                        if (currentPairs.length < targetCount) continue;
-                        let sumA = currentPairs.reduce((s, p) => s + p.a.val, 0);
-                        let sumB = currentPairs.reduce((s, p) => s + p.b.val, 0);
-                        for (let step = 0; step < 100; step++) {
-                            let diff = sumA - sumB;
-                            if (Math.abs(diff) <= 100) break;
-                            let improved = false;
-                            let targetSide = (diff > 0) ? 'a' : 'b'; 
-                            let pool = (targetSide === 'a') ? [...myM, ...myA] : [...oppM, ...oppA];
-                            let unused = pool.filter(x => !usedIds.has(x.id));
-                            for (let p of currentPairs) {
-                                for (let candidate of unused) {
-                                    if (candidate.origin !== p[targetSide].origin) continue;
-                                    let partner = (targetSide === 'a') ? p.b : p.a;
-                                    if (Math.max(candidate.val, partner.val) / Math.min(candidate.val, partner.val) <= 5) {
-                                        let newDiff = (targetSide === 'a') ? (sumA - p.a.val + candidate.val) - sumB : sumA - (sumB - p.b.val + candidate.val);
-                                        if (Math.abs(newDiff) < Math.abs(diff)) {
-                                            if (targetSide === 'a') sumA = sumA - p.a.val + candidate.val;
-                                            else sumB = sumB - p.b.val + candidate.val;
-                                            usedIds.delete(p[targetSide].id);
-                                            p[targetSide] = candidate;
-                                            usedIds.add(candidate.id);
-                                            improved = true; break;
-                                        }
-                                    }
-                                }
-                                if (improved) break;
-                            }
-                            if (!improved) break;
-                        }
-                        let finalError = Math.abs(sumA - sumB);
-                        let score = currentPairs.length * 1000000 + (100000 - finalError);
-                        if (finalError <= 100 && score > bestResult.score) {
-                            bestResult = { pairs: currentPairs, error: finalError, count: currentPairs.length, score, sumA, sumB, usedIds };
-                        }
-                    }
-                }
-                render(bestResult, myM, myA, oppM, oppA);
-            }
-
-            function render(res, am, aa, bm, ba) {
-                const movieBody = document.getElementById('movieBody');
-                const adBody = document.getElementById('adBody');
-                const myMatchedMovieValues = [];
-                const myMatchedAdValues = [];
-                const oppMatchedIds = new Set();
-                res.pairs.forEach(p => {
-                    if (p.a.origin.startsWith('opp')) {
-                        oppMatchedIds.add(p.a.id);
-                        if (p.b.origin === 'myM') myMatchedMovieValues.push(p.b.val);
-                        else myMatchedAdValues.push(p.b.val);
-                    } else {
-                        oppMatchedIds.add(p.b.id);
-                        if (p.a.origin === 'myM') myMatchedMovieValues.push(p.a.val);
-                        else myMatchedAdValues.push(p.a.val);
-                    }
-                });
-                myMatchedMovieValues.sort((x, y) => y - x);
-                myMatchedAdValues.sort((x, y) => y - x);
-                function fillTable(body, allOppItems, matchedMyValues, matchedIdSet, oppClass, myClass) {
-                    const sortedOpp = [...allOppItems].sort((x, y) => y.val - x.val);
-                    let myIdx = 0;
-                    body.innerHTML = sortedOpp.map(item => {
-                        const isMatched = matchedIdSet.has(item.id);
-                        let myDisplay = '---';
-                        let cellStyle = 'empty-cell';
-                        if (isMatched) {
-                            myDisplay = matchedMyValues[myIdx++].toLocaleString();
-                            cellStyle = myClass;
-                        }
-                        return `<tr>
-                            <td class="${isMatched ? oppClass : 'not-matched'}">${item.val.toLocaleString()}</td>
-                            <td class="${isMatched ? cellStyle : 'not-matched'}">${myDisplay}</td>
-                        </tr>`;
-                    }).join('');
-                }
-                fillTable(movieBody, bm, myMatchedAdValues, oppMatchedIds, 'txt-movie', 'txt-ad');
-                fillTable(adBody, ba, myMatchedMovieValues, oppMatchedIds, 'txt-ad', 'txt-movie');
-                document.getElementById('summaryArea').style.display = 'flex';
-                document.getElementById('pairCount').innerText = res.count;
-                document.getElementById('sumDiff').innerText = (res.error || 0).toLocaleString();
-                document.getElementById('sumDiff').className = 'diff-val ' + (res.error <= 100 ? 'ideal' : 'warning');
-                document.getElementById('remainArea').style.display = 'block';
-                const myRem = [...am, ...aa].filter(x => !res.usedIds.has(x.id)).sort((x,y)=>y.val-x.val);
-                const oppRem = [...bm, ...ba].filter(x => !res.usedIds.has(x.id)).sort((x,y)=>y.val-x.val);
-                document.getElementById('oppRemain').innerHTML = '<strong>對方剩餘：</strong>' + oppRem.map(v => `<span class="tag ${v.origin==='oppM'?'tag-red':'tag-blue'}">${v.val}</span>`).join(' ');
-                document.getElementById('myRemain').innerHTML = '<strong>我方剩餘：</strong>' + myRem.map(v => `<span class="tag ${v.origin==='myM'?'tag-red':'tag-blue'}">${v.val}</span>`).join(' ');
-            }
-        })();
-    </script>
+  <div id="summaryArea" class="summary-box" style="display:none;">
+    <div class="stat-item">
+      <span class="stat-label">配對組數</span>
+      <span id="pairCount" class="stat-value">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">對方合作總額</span>
+      <span id="sumOpp" class="stat-value">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">我方合作總額</span>
+      <span id="sumMy" class="stat-value">0</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-label">計算誤差</span>
+      <span id="sumDiff" class="diff-val">0</span>
+    </div>
+  </div>
+  
+  <div id="remainArea" class="remain-section" style="display:none;">
+    <div id="oppRemain" style="margin-bottom:12px;"></div>
+    <div id="myRemain"></div>
+  </div>
 </div>
+
+<script>
+  (function() {
+    window.clearAll = function() {
+      if(!confirm('確定要清空所有資料嗎？')) return;
+      ['oppM', 'oppA', 'myM', 'myA'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('movieBody').innerHTML = '';
+      document.getElementById('adBody').innerHTML = '';
+      document.getElementById('summaryArea').style.display = 'none';
+      document.getElementById('remainArea').style.display = 'none';
+    };
+
+    window.pasteTo = async function(id) {
+      try {
+        const text = await navigator.clipboard.readText();
+        document.getElementById(id).value = text.trim().replace(/[\r\n\t\s]+/g, ' ');
+      } catch (err) { alert('剪貼簿存取失敗'); }
+    };
+
+    window.prepareMatching = function() {
+      const btn = document.getElementById('matchBtn');
+      const loading = document.getElementById('loadingOverlay');
+      btn.disabled = true;
+      loading.style.display = 'block';
+      setTimeout(() => {
+        startMatching();
+        btn.disabled = false;
+        loading.style.display = 'none';
+      }, 100);
+    };
+
+    function parseInput(id) {
+      return document.getElementById(id).value.trim().split(/\s+/)
+        .filter(s => s !== "" && !isNaN(s))
+        .map((v, i) => ({ id: `${id}_${i}`, val: Number(v), origin: id }));
+    }
+
+    function startMatching() {
+      const oppM = parseInput('oppM');
+      const oppA = parseInput('oppA');
+      const myM = parseInput('myM');
+      const myA = parseInput('myA');
+
+      let edges = [];
+      myM.forEach(a => oppA.forEach(b => {
+        if (Math.max(a.val, b.val) / Math.min(a.val, b.val) <= 5) edges.push({ a, b });
+      }));
+      oppM.forEach(b => myA.forEach(a => {
+        if (Math.max(a.val, b.val) / Math.min(a.val, b.val) <= 5) edges.push({ a, b });
+      }));
+
+      let best = { pairs: [], error: Infinity, count: 0, score: -1, sumA: 0, sumB: 0 };
+      const maxPairs = Math.min(myM.length + myA.length, oppM.length + oppA.length);
+
+      for (let targetCount = maxPairs; targetCount >= 1; targetCount--) {
+        if (best.count > targetCount && best.error <= 100) break;
+        for (let attempt = 0; attempt < 800; attempt++) {
+          let currentPairs = [];
+          let usedIds = new Set();
+          let shuffled = [...edges].sort(() => Math.random() - 0.5);
+          for (let e of shuffled) {
+            if (currentPairs.length < targetCount && !usedIds.has(e.a.id) && !usedIds.has(e.b.id)) {
+              currentPairs.push({...e});
+              usedIds.add(e.a.id);
+              usedIds.add(e.b.id);
+            }
+          }
+          if (currentPairs.length < targetCount) continue;
+          let sA = currentPairs.reduce((s, p) => s + p.a.val, 0);
+          let sB = currentPairs.reduce((s, p) => s + p.b.val, 0);
+          
+          for (let step = 0; step < 100; step++) {
+            let diff = sA - sB;
+            if (Math.abs(diff) <= 100) break;
+            let improved = false;
+            let side = (diff > 0) ? 'a' : 'b'; 
+            let pool = (side === 'a') ? [...myM, ...myA] : [...oppM, ...oppA];
+            let unused = pool.filter(x => !usedIds.has(x.id));
+            for (let p of currentPairs) {
+              for (let candidate of unused) {
+                if (candidate.origin !== p[side].origin) continue;
+                let partner = (side === 'a') ? p.b : p.a;
+                if (Math.max(candidate.val, partner.val) / Math.min(candidate.val, partner.val) <= 5) {
+                  let newDiff = (side === 'a') ? (sA - p.a.val + candidate.val) - sB : sA - (sB - p.b.val + candidate.val);
+                  if (Math.abs(newDiff) < Math.abs(diff)) {
+                    if (side === 'a') sA = sA - p.a.val + candidate.val;
+                    else sB = sB - p.b.val + candidate.val;
+                    usedIds.delete(p[side].id);
+                    p[side] = candidate;
+                    usedIds.add(candidate.id);
+                    improved = true; break;
+                  }
+                }
+              }
+              if (improved) break;
+            }
+            if (!improved) break;
+          }
+          let err = Math.abs(sA - sB);
+          let score = currentPairs.length * 1000000 + (100000 - err);
+          if (err <= 100 && score > best.score) {
+            best = { pairs: currentPairs, error: err, count: currentPairs.length, score, sumA: sA, sumB: sB, usedIds };
+          }
+        }
+      }
+      render(best, myM, myA, oppM, oppA);
+    }
+
+    function render(res, am, aa, bm, ba) {
+      const movieBody = document.getElementById('movieBody');
+      const adBody = document.getElementById('adBody');
+      const myMVal = [];
+      const myAVal = [];
+      const oppMatched = new Set();
+      
+      res.pairs.forEach(p => {
+        if (p.a.origin.startsWith('opp')) {
+          oppMatched.add(p.a.id);
+          if (p.b.origin === 'myM') myMVal.push(p.b.val);
+          else myAVal.push(p.b.val);
+        } else {
+          oppMatched.add(p.b.id);
+          if (p.a.origin === 'myM') myMVal.push(p.a.val);
+          else myAVal.push(p.a.val);
+        }
+      });
+
+      myMVal.sort((x, y) => y - x);
+      myAVal.sort((x, y) => y - x);
+
+      function fill(body, oppItems, myVals, matchedIdSet, oc, mc) {
+        const sorted = [...oppItems].sort((x, y) => y.val - x.val);
+        let mIdx = 0;
+        body.innerHTML = sorted.map(item => {
+          const matched = matchedIdSet.has(item.id);
+          let display = '---';
+          if (matched) display = myVals[mIdx++].toLocaleString();
+          return `<tr>
+            <td class="${matched ? oc : 'not-matched'}">${item.val.toLocaleString()}</td>
+            <td class="${matched ? mc : 'not-matched'}">${display}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      fill(movieBody, bm, myAVal, oppMatched, 'txt-movie', 'txt-ad');
+      fill(adBody, ba, myMVal, oppMatched, 'txt-ad', 'txt-movie');
+      
+      document.getElementById('summaryArea').style.display = 'flex';
+      document.getElementById('pairCount').innerText = res.count;
+      document.getElementById('sumOpp').innerText = res.sumB.toLocaleString();
+      document.getElementById('sumMy').innerText = res.sumA.toLocaleString();
+      document.getElementById('sumDiff').innerText = res.error.toLocaleString();
+      document.getElementById('sumDiff').className = 'diff-val ' + (res.error <= 100 ? 'ideal' : 'warning');
+      
+      document.getElementById('remainArea').style.display = 'block';
+      const myRem = [...am, ...aa].filter(x => !res.usedIds.has(x.id)).sort((x,y)=>y.val-x.val);
+      const oppRem = [...bm, ...ba].filter(x => !res.usedIds.has(x.id)).sort((x,y)=>y.val-x.val);
+      
+      document.getElementById('oppRemain').innerHTML = '<strong>對方剩餘：</strong>' + oppRem.map(v => `<span class="tag ${v.origin==='oppM'?'tag-red':'tag-blue'}">${v.val}</span>`).join('');
+      document.getElementById('myRemain').innerHTML = '<strong>我方剩餘：</strong>' + myRem.map(v => `<span class="tag ${v.origin==='myM'?'tag-red':'tag-blue'}">${v.val}</span>`).join('');
+    }
+  })();
+</script>
