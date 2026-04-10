@@ -302,9 +302,13 @@
     }
 
     .stat-value {
-      font-size: 18px;
-      font-weight: 700;
       color: var(--ios-text-main);
+
+      display: inline-block;
+      font-size: 20px;
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-weight: 800;
     }
 
     /* 誤差數值樣式 */
@@ -382,10 +386,10 @@
     <div class="input-card">
       <div class="player-grid">
         <div class="box-wrapper">
-          <div class="player-section-title">對方數據 (Player B)</div>
+          <div class="player-section-title">對方作品</div>
           <div class="input-box">
             <div class="box-header header-m">
-              <span>對方影視 (B Movie)</span>
+              <span>對方影視</span>
               <div class="header-action-group">
                 <button class="btn-paste" onclick="pasteTo('oppM')">貼上</button>
                 <button class="btn-paste" onclick="document.getElementById('oppM').value=''">清空</button>
@@ -395,7 +399,7 @@
           </div>
           <div class="input-box">
             <div class="box-header header-a">
-              <span>對方廣告 (B Ad)</span>
+              <span>對方廣告</span>
               <div class="header-action-group">
                 <button class="btn-paste" onclick="pasteTo('oppA')">貼上</button>
                 <button class="btn-paste" onclick="document.getElementById('oppA').value=''">清空</button>
@@ -406,10 +410,10 @@
         </div>
 
         <div class="box-wrapper">
-          <div class="player-section-title">我的數據 (Player A)</div>
+          <div class="player-section-title">我的作品</div>
           <div class="input-box">
             <div class="box-header header-m">
-              <span>我的影視 (A Movie)</span>
+              <span>我的影視</span>
               <div class="header-action-group">
                 <button class="btn-paste" onclick="pasteTo('myM')">貼上</button>
                 <button class="btn-paste" onclick="document.getElementById('myM').value=''">清空</button>
@@ -419,7 +423,7 @@
           </div>
           <div class="input-box">
             <div class="box-header header-a">
-              <span>我的廣告 (A Ad)</span>
+              <span>我的廣告</span>
               <div class="header-action-group">
                 <button class="btn-paste" onclick="pasteTo('myA')">貼上</button>
                 <button class="btn-paste" onclick="document.getElementById('myA').value=''">清空</button>
@@ -440,7 +444,7 @@
 
     <div class="result-grid">
       <div class="table-card">
-        <div class="table-header" style="background:#fee2e2; color:var(--movie-red);">對方(影) ↔ 我的(廣)</div>
+        <div class="table-header" style="background:#fee2e2; color:var(--movie-red);">對方(影) 與 我的(廣)</div>
         <table>
           <thead>
             <tr>
@@ -452,7 +456,7 @@
         </table>
       </div>
       <div class="table-card">
-        <div class="table-header" style="background:#e0f2fe; color:var(--ad-blue);">對方(廣) ↔ 我的(影)</div>
+        <div class="table-header" style="background:#e0f2fe; color:var(--ad-blue);">對方(廣) 與 我的(影)</div>
         <table>
           <thead>
             <tr>
@@ -653,8 +657,8 @@
         document.getElementById('remainArea').style.display = 'block';
         const myRem = [...am, ...aa].filter(x => !res.usedIds.has(x.id)).sort((x, y) => y.val - x.val);
         const oppRem = [...bm, ...ba].filter(x => !res.usedIds.has(x.id)).sort((x, y) => y.val - x.val);
-        document.getElementById('oppRemain').innerHTML = '<strong>對方剩餘：</strong>' + oppRem.map(v => `<span class="tag ${v.origin === 'oppM' ? 'tag-red' : 'tag-blue'}">${v.val}</span>`).join('');
-        document.getElementById('myRemain').innerHTML = '<strong>我方剩餘：</strong>' + myRem.map(v => `<span class="tag ${v.origin === 'myM' ? 'tag-red' : 'tag-blue'}">${v.val}</span>`).join('');
+        document.getElementById('oppRemain').innerHTML = '<strong>對方剩餘作品</strong><br>' + oppRem.map(v => `<span class="tag ${v.origin === 'oppM' ? 'tag-red' : 'tag-blue'}">${v.val}</span>`).join('');
+        document.getElementById('myRemain').innerHTML = '<strong>我方剩餘作品</strong><br>' + myRem.map(v => `<span class="tag ${v.origin === 'myM' ? 'tag-red' : 'tag-blue'}">${v.val}</span>`).join('');
       }
     })();
   </script>
