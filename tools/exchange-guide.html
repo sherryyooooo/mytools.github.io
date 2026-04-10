@@ -30,7 +30,7 @@
       color: var(--ios-text-main);
       max-width: 900px;
       margin: 0 auto;
-      padding: 20px;
+      padding: 0px; /* 外框已内縮 該畫面不用在縮 20*/
     }
 
     /* 返回連結 */
@@ -132,7 +132,7 @@
 <body>
 
   <div class="info-container">
-    <a class="back-link" onclick="history.back()">
+    <a class="back-link" onclick="showHome()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
       返回工具總覽
     </a>
