@@ -1,367 +1,615 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>時光雜貨店兌換推薦</title>
+  <title>兌換推薦指南</title>
+  <link rel="stylesheet" href="../shared/style.css">
   <style>
-    /* 核心視覺系統 - 同步 iOS 框架 */
-    :root {
-      --bg-color: #f5f5f7;
-      --card-bg: #ffffff;
-      --ios-blue: #007AFF;
-      --ios-text-main: #1d1d1f;
-      --ios-text-sub: #86868b;
-      --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      --radius-lg: 12px;
-      --tag-bg: #f2f2f7; /* 統一灰底 */
-    }
-
-    body {
-      background-color: var(--bg-color);
-      margin: 0;
-      padding: 0;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .info-container {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "Microsoft JhengHei", sans-serif;
-      color: var(--ios-text-main);
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 0px; /* 外框已内縮 該畫面不用在縮 20*/
-    }
-
-    /* 返回連結 */
-    .back-link {
+    /* ── Tier badge ── */
+    .tier {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      color: var(--ios-blue);
-      text-decoration: none;
-      font-size: 15px;
-      margin-bottom: 20px;
-      font-weight: 400;
-      cursor: pointer;
-    }
-
-    .back-link:hover {
-      text-decoration: underline;
-    }
-
-    .tool-page-header {
-      margin-bottom: 30px;
-    }
-
-    .tool-page-header h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin: 0 0 8px 0;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    /* 分類標題樣式 */
-    .category-section {
-      margin-bottom: 40px;
-    }
-
-    .category-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-bottom: 20px;
-      color: var(--ios-text-main);
-    }
-
-    /* 資訊卡片格線 */
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 20px;
-    }
-
-    .info-card {
-      background: var(--card-bg);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      box-shadow: var(--card-shadow);
-    }
-
-    .card-header {
-      font-weight: 700;
-      font-size: 18px;
-      margin-bottom: 16px;
-      color: var(--ios-text-main);
-      border-bottom: 1px solid #f2f2f7;
-      padding-bottom: 10px;
-    }
-
-    /* 推薦項目容器 */
-    .item-group {
-      margin-top: 12px;
-    }
-
-    .sub-level-title {
+      padding: 4px 10px;
+      border-radius: 6px;
       font-size: 14px;
-      color: var(--ios-text-sub);
       font-weight: 600;
-      margin: 10px 0 6px 0;
-      display: block;
+      white-space: nowrap;
     }
+    .tier-label { font-size: 10px; font-weight: 800; opacity: 0.75; margin-right: 1px; }
+    .t-SSS { background: #FFE4E4; color: #B91C1C; }
+    .t-SS  { background: #FFEDD5; color: #C2410C; }
+    .t-S   { background: #FEF9C3; color: #854D0E; }
+    .t-A   { background: #DCFCE7; color: #166534; }
+    .t-B   { background: #F3F4F6; color: #6B7280; }
 
-    .tag-container {
+    /* ── Tier legend ── */
+    .tier-legend {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .legend-label { font-size: 12px; color: var(--sub); font-weight: 600; margin-right: 4px; }
+    .legend-item  { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--sub); }
+
+    /* ── Filter tabs ── */
+    .filter-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+    .filter-tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-tab.active          { background: var(--blue); border-color: var(--blue); color: #fff; }
+    .filter-tab:hover:not(.active) { border-color: var(--blue); color: var(--blue); }
+
+    /* ── Table ── */
+    .table-wrap   { background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+    .table-scroll { overflow-x: auto; }
+    table.exchange { width: 100%; border-collapse: collapse; font-size: 14px; }
+    table.exchange th {
+      background: var(--bg);
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+    }
+    table.exchange td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.exchange tbody tr:last-child > td { border-bottom: none; }
+
+    /* Category divider rows */
+    .cat-row > td {
+      padding: 7px 14px;
+      background: var(--bg);
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-top: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
     }
 
-    /* 統一標籤樣式：一個項目一個灰底區塊 */
-    .item-tag {
-      background: var(--tag-bg);
-      color: var(--ios-text-main);
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-    }
+    /* Activity & pool cells */
+    .activity-td  { border-right: 1px solid var(--border); min-width: 130px; }
+    .activity-name { font-weight: 600; }
+    .activity-note { font-size: 12px; color: var(--sub); font-weight: 400; margin-top: 2px; }
+    .pool-td       { min-width: 80px; border-right: 1px solid var(--border); }
+    .pool-label    { font-size: 12px; color: var(--sub); white-space: nowrap; }
+    .items-cell    { display: flex; flex-wrap: wrap; gap: 5px; }
 
     @media (max-width: 600px) {
-      .info-grid { grid-template-columns: 1fr; }
+      table.exchange th:nth-child(2),
+      table.exchange td.pool-td { display: none; }
     }
   </style>
 </head>
-
 <body>
 
-  <div class="info-container">
-    <a class="back-link" onclick="showHome()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-      返回工具總覽
-    </a>
+<script src="../shared/header.js"></script>
 
-    <div class="tool-page-header">
-      <h1>🛍️ 時光雜貨店兌換推薦</h1>
-    </div>
+<div class="page-container">
 
-    <div class="category-section">
-      <div class="category-title">日常類兌換</div>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="card-header">各期小遊戲(拍洋畫/翻花繩/打水飄等)</div>
-          <div class="tag-container">
-            <span class="item-tag">藍卡(高級邀請函)</span>
-            <span class="item-tag">人才卡碎片</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">集卡碎片</div>
-          <div class="tag-container">
-            <span class="item-tag">小喇叭</span>
-            <span class="item-tag">雪花膏</span>
-            <span class="item-tag">三件套</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">榜單兌換-遞增(跨服飯店/跨服商戰)</div>
-          <span class="sub-level-title">飯店</span>
-          <div class="tag-container">
-            <span class="item-tag">渦輪(1-3)</span><span class="item-tag">人參</span><span class="item-tag">房卡</span>
-            <span class="item-tag">豬腳麵</span><span class="item-tag">致富經(3)</span><span class="item-tag">人才卡碎片(3)</span>
-          </div>
-          <span class="sub-level-title">商戰</span>
-          <div class="tag-container">
-            <span class="item-tag">三件套</span><span class="item-tag">小人參</span><span class="item-tag">香香</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <div class="tool-page-header">
+    <h1>🛍️ 時光雜貨店兌換推薦</h1>
+    <p>各活動建議兌換項目，依優先度 SSS → B 標示，每列按等級高低排序</p>
+  </div>
 
-    <div class="category-section">
-      <div class="category-title">活動類兌換</div>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="card-header">第六號當舖</div>
-          <div class="tag-container">
-            <span class="item-tag">渦輪</span><span class="item-tag">護膚脂</span><span class="item-tag">碎片(人才卡、水滸、英雄)</span>
-            <span class="item-tag">高級挑戰書</span><span class="item-tag">人參</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">發光古井</div>
-          <div class="tag-container">
-            <span class="item-tag">香香</span><span class="item-tag">三件套</span><span class="item-tag">人參</span><span class="item-tag">人才卡碎片</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">小靈通</div>
-          <div class="tag-container">
-            <span class="item-tag">香香</span><span class="item-tag">人參</span><span class="item-tag">零件</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">豬豬配種</div>
-          <div class="tag-container">
-            <span class="item-tag">小菜</span><span class="item-tag">小飲</span><span class="item-tag">香香</span>
-            <span class="item-tag">澡堂票</span><span class="item-tag">高級挑戰書</span><span class="item-tag">三件套</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">牛魔降世</div>
-          <span class="sub-level-title">優先活動限購</span>
-          <div class="tag-container">
-            <span class="item-tag">扇子</span><span class="item-tag">大聖令</span><span class="item-tag">舞廳票</span>
-            <span class="item-tag">人才卡碎片</span><span class="item-tag">致富經</span><span class="item-tag">澡堂票</span><span class="item-tag">春耕</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">時光之巔-1</div>
-          <div class="tag-container">
-            <span class="item-tag">天賦自選</span><span class="item-tag">小菜</span><span class="item-tag">小飲</span><span class="item-tag">香香</span>
-            <span class="item-tag">捧場喇叭</span><span class="item-tag">歌星加速卡</span><span class="item-tag">火車票</span><span class="item-tag">渦輪</span><span class="item-tag">舞廳票</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">時光之巔-2</div>
-          <div class="tag-container">
-            <span class="item-tag">皮膚</span><span class="item-tag">領航之證</span><span class="item-tag">火車票</span><span class="item-tag">小菜</span>
-            <span class="item-tag">小飲</span><span class="item-tag">香香</span><span class="item-tag">護膚脂</span><span class="item-tag">捧場喇叭</span><span class="item-tag">渦輪</span><span class="item-tag">豬腳面</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">投資風暴</div>
-          <div class="tag-container">
-            <span class="item-tag">小菜</span><span class="item-tag">小飲</span><span class="item-tag">小喇叭</span><span class="item-tag">香香</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">明星打造</div>
-          <div class="tag-container">
-            <span class="item-tag">保養脂</span><span class="item-tag">香香</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Tier Legend -->
+  <div class="tier-legend">
+    <span class="legend-label">優先度：</span>
+    <div class="legend-item"><span class="tier t-SSS">必換</span><span>SSS</span></div>
+    <div class="legend-item"><span class="tier t-SS">強推</span><span>SS</span></div>
+    <div class="legend-item"><span class="tier t-S">推薦</span><span>S</span></div>
+    <div class="legend-item"><span class="tier t-A">一般</span><span>A</span></div>
+    <div class="legend-item"><span class="tier t-B">不急</span><span>B/其他</span></div>
+  </div>
 
-    <div class="category-section">
-      <div class="category-title">公會賽兌換</div>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="card-header">四靈遺跡</div>
-          <span class="sub-level-title">初級</span>
-          <div class="tag-container"><span class="item-tag">香香</span><span class="item-tag">能量汽水</span></div>
-          <span class="sub-level-title">中級</span>
-          <div class="tag-container"><span class="item-tag">渦輪</span><span class="item-tag">能量汽水</span></div>
-          <span class="sub-level-title">高級</span>
-          <div class="tag-container"><span class="item-tag">守護神碎片</span><span class="item-tag">黑卡</span><span class="item-tag">香香</span><span class="item-tag">能量汽水</span><span class="item-tag">特級挑戰書</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">運動會</div>
-          <span class="sub-level-title">初級</span>
-          <div class="tag-container"><span class="item-tag">人才卡碎片</span><span class="item-tag">致富經(建議保留不換)</span></div>
-          <span class="sub-level-title">中級</span>
-          <div class="tag-container"><span class="item-tag">聚義令</span><span class="item-tag">小菜</span><span class="item-tag">小飲</span></div>
-          <span class="sub-level-title">高級</span>
-          <div class="tag-container"><span class="item-tag">皮膚(藝人皮膚+鄭經理)</span><span class="item-tag">聚義令</span><span class="item-tag">大魚</span><span class="item-tag">大肉</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">公會爭霸賽</div>
-          <div class="tag-container">
-            <span class="item-tag">人參</span><span class="item-tag">引薦卡碎片</span><span class="item-tag">香香</span><span class="item-tag">澡堂票</span><span class="item-tag">春耕</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">楚漢爭霸(樓層越高耗費越低-日限購)</div>
-          <span class="sub-level-title">烽煙四起-1</span>
-          <div class="tag-container"><span class="item-tag">銅幣：兵符*300</span></div>
-          <span class="sub-level-title">中原逐鹿-2</span>
-          <div class="tag-container"><span class="item-tag">銀幣：黑卡(優先換三層)</span><span class="item-tag">香香</span><span class="item-tag">兵符</span></div>
-          <span class="sub-level-title">問鼎天下-3</span>
-          <div class="tag-container"><span class="item-tag">銀幣：黑卡</span><span class="item-tag">香香</span><span class="item-tag">兵符</span><span class="item-tag">金幣：皮膚</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">決戰光明頂</div>
-          <div class="tag-container">
-            <span class="item-tag">印記</span><span class="item-tag">英雄帖</span><span class="item-tag">頂尖自選箱</span><span class="item-tag">人才卡碎片</span>
-            <span class="item-tag">三件套</span><span class="item-tag">澡堂票</span><span class="item-tag">護膚脂</span><span class="item-tag">致富經</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">問鼎中原</div>
-          <div class="tag-container">
-            <span class="item-tag">黃石遺卷</span><span class="item-tag">兵符</span><span class="item-tag">三件套</span><span class="item-tag">春耕</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">賽龍舟</div>
-          <div class="tag-container">
-            <span class="item-tag">小菜</span><span class="item-tag">小飲</span><span class="item-tag">香香</span>
-          </div>
-        </div>
-      </div>
-    </div>
+  <!-- Category Filter -->
+  <div class="filter-tabs" id="filterTabs"></div>
 
-    <div class="category-section">
-      <div class="category-title">氪金抽獎兌換</div>
-      <div class="info-grid">
-        <div class="info-card">
-          <div class="card-header">烏龜對對碰(道具不保留)</div>
-          <span class="sub-level-title">金龜</span>
-          <div class="tag-container"><span class="item-tag">黑卡</span><span class="item-tag">金色三件套</span></div>
-          <span class="sub-level-title">銀龜</span>
-          <div class="tag-container"><span class="item-tag">碎片(水滸、英雄、人才卡)</span><span class="item-tag">致富經</span><span class="item-tag">風華綴玉</span></div>
-          <span class="sub-level-title">玩偶龜</span>
-          <div class="tag-container"><span class="item-tag">護膚脂</span><span class="item-tag">豬腳麵</span><span class="item-tag">錄影廳</span><span class="item-tag">澡堂票</span><span class="item-tag">三件套</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">黃金礦工(道具不保留)</div>
-          <span class="sub-level-title">紅水晶</span>
-          <div class="tag-container"><span class="item-tag">黑卡</span></div>
-          <span class="sub-level-title">藍水晶</span>
-          <div class="tag-container"><span class="item-tag">大魚</span><span class="item-tag">大肉</span><span class="item-tag">人才卡碎片</span></div>
-          <span class="sub-level-title">黃金</span>
-          <div class="tag-container"><span class="item-tag">小菜</span><span class="item-tag">小飲</span><span class="item-tag">香香</span><span class="item-tag">三件套</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">幸運之夜(道具不保留)</div>
-          <span class="sub-level-title">燈</span>
-          <div class="tag-container"><span class="item-tag">八珍宴帖</span></div>
-          <span class="sub-level-title">玉佩</span>
-          <div class="tag-container"><span class="item-tag">副業許可證</span></div>
-          <span class="sub-level-title">黃珠</span>
-          <div class="tag-container"><span class="item-tag">小喇叭</span><span class="item-tag">三件套</span><span class="item-tag">香香</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">校園遊戲</div>
-          <div class="tag-container">
-            <span class="item-tag">護膚脂</span><span class="item-tag">人才卡碎片</span><span class="item-tag">澡堂票</span>
-            <span class="item-tag">舞廳票</span><span class="item-tag">渦輪</span><span class="item-tag">人參</span><span class="item-tag">三件套</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">拔蘿蔔</div>
-          <div class="tag-container">
-            <span class="item-tag">人參</span><span class="item-tag">保養脂</span><span class="item-tag">計算機</span>
-            <span class="item-tag">豬腳麵</span><span class="item-tag">澡堂票</span><span class="item-tag">錄影廳</span><span class="item-tag">春耕票</span>
-          </div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">糖畫攤(道具不保留)</div>
-          <span class="sub-level-title">紫色</span>
-          <div class="tag-container"><span class="item-tag">小喇叭</span><span class="item-tag">香香</span></div>
-          <span class="sub-level-title">金</span>
-          <div class="tag-container"><span class="item-tag">盛宴帖</span><span class="item-tag">雪花膏</span></div>
-        </div>
-        <div class="info-card">
-          <div class="card-header">女神花語</div>
-          <div class="tag-container">
-            <span class="item-tag">典雅禮盒</span><span class="item-tag">禮袋</span><span class="item-tag">影視邀請函</span><span class="item-tag">小喇叭</span>
-          </div>
-        </div>
-      </div>
+  <!-- Table -->
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="exchange">
+        <thead>
+          <tr>
+            <th style="min-width:140px">活動</th>
+            <th style="min-width:90px">兌換池</th>
+            <th>推薦兌換項目（由高至低）</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
     </div>
   </div>
 
+</div>
+
+<script>
+/* =====================================================
+ * 資料區 — 新增或修改活動只需編輯此區塊
+ *
+ * 欄位說明：
+ *   cat    ：顯示用類別名稱
+ *   catId  ：類別 ID（用於篩選，不顯示）
+ *   name   ：活動名稱
+ *   note   ：(選填) 活動補充說明，灰色小字
+ *   pools  ：兌換池陣列
+ *     label：(選填) 池名稱，如「初級」「金龜」；單一池可省略
+ *     items：兌換項目陣列
+ *       name：項目名稱
+ *       tier：優先度，填入 SSS | SS | S | A | B
+ * ===================================================== */
+const DATA = [
+
+  // ── 日常類 ──────────────────────────────────────────
+  {
+    cat: '日常類', catId: 'daily',
+    name: '各期小遊戲', note: '拍洋畫／翻花繩／打水飄等',
+    pools: [{ items: [
+      { name: '藍卡(高級邀請函)', tier: 'SSS' },
+      { name: '人才卡碎片',       tier: 'SS'  },
+    ]}],
+  },
+  {
+    cat: '日常類', catId: 'daily',
+    name: '集卡碎片',
+    pools: [{ items: [
+      { name: '小喇叭', tier: 'S' },
+      { name: '雪花膏', tier: 'S' },
+      { name: '三件套', tier: 'A' },
+    ]}],
+  },
+  {
+    cat: '日常類', catId: 'daily',
+    name: '榜單兌換-遞增', note: '跨服飯店／跨服商戰',
+    pools: [
+      { label: '飯店', items: [
+        { name: '渦輪(1-3)',     tier: 'SS' },
+        { name: '人參',          tier: 'SS' },
+        { name: '致富經(3)',     tier: 'SS' },
+        { name: '人才卡碎片(3)', tier: 'SS' },
+        { name: '房卡',          tier: 'S'  },
+        { name: '豬腳麵',        tier: 'A'  },
+      ]},
+      { label: '商戰', items: [
+        { name: '三件套', tier: 'A' },
+        { name: '小人參', tier: 'A' },
+        { name: '香香',   tier: 'A' },
+      ]},
+    ],
+  },
+
+  // ── 活動類 ──────────────────────────────────────────
+  {
+    cat: '活動類', catId: 'event',
+    name: '第六號當舖',
+    pools: [{ items: [
+      { name: '渦輪',                      tier: 'SS' },
+      { name: '人參',                      tier: 'SS' },
+      { name: '碎片(人才卡、水滸、英雄)', tier: 'SS' },
+      { name: '高級挑戰書',                tier: 'S'  },
+      { name: '護膚脂',                    tier: 'S'  },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '發光古井',
+    pools: [{ items: [
+      { name: '人才卡碎片', tier: 'SS' },
+      { name: '人參',       tier: 'SS' },
+      { name: '三件套',     tier: 'A'  },
+      { name: '香香',       tier: 'A'  },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '小靈通',
+    pools: [{ items: [
+      { name: '人參', tier: 'SS' },
+      { name: '零件', tier: 'S'  },
+      { name: '香香', tier: 'A'  },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '豬豬配種',
+    pools: [{ items: [
+      { name: '高級挑戰書', tier: 'S' },
+      { name: '澡堂票',     tier: 'S' },
+      { name: '三件套',     tier: 'A' },
+      { name: '小菜',       tier: 'A' },
+      { name: '小飲',       tier: 'A' },
+      { name: '香香',       tier: 'A' },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '牛魔降世',
+    pools: [{ label: '優先活動限購', items: [
+      { name: '扇子',       tier: 'SSS' },
+      { name: '大聖令',     tier: 'SSS' },
+      { name: '人才卡碎片', tier: 'SS'  },
+      { name: '致富經',     tier: 'SS'  },
+      { name: '舞廳票',     tier: 'S'   },
+      { name: '澡堂票',     tier: 'S'   },
+      { name: '春耕',       tier: 'S'   },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '時光之巔-1',
+    pools: [{ items: [
+      { name: '天賦自選',   tier: 'SSS' },
+      { name: '渦輪',       tier: 'SS'  },
+      { name: '舞廳票',     tier: 'S'   },
+      { name: '小菜',       tier: 'A'   },
+      { name: '小飲',       tier: 'A'   },
+      { name: '香香',       tier: 'A'   },
+      { name: '捧場喇叭',   tier: 'A'   },
+      { name: '歌星加速卡', tier: 'A'   },
+      { name: '火車票',     tier: 'A'   },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '時光之巔-2',
+    pools: [{ items: [
+      { name: '皮膚',     tier: 'SSS' },
+      { name: '領航之證', tier: 'SSS' },
+      { name: '渦輪',     tier: 'SS'  },
+      { name: '護膚脂',   tier: 'S'   },
+      { name: '小菜',     tier: 'A'   },
+      { name: '小飲',     tier: 'A'   },
+      { name: '香香',     tier: 'A'   },
+      { name: '捧場喇叭', tier: 'A'   },
+      { name: '火車票',   tier: 'A'   },
+      { name: '豬腳面',   tier: 'A'   },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '投資風暴',
+    pools: [{ items: [
+      { name: '小喇叭', tier: 'S' },
+      { name: '小菜',   tier: 'A' },
+      { name: '小飲',   tier: 'A' },
+      { name: '香香',   tier: 'A' },
+    ]}],
+  },
+  {
+    cat: '活動類', catId: 'event',
+    name: '明星打造',
+    pools: [{ items: [
+      { name: '保養脂', tier: 'S' },
+      { name: '香香',   tier: 'A' },
+    ]}],
+  },
+
+  // ── 公會賽 ──────────────────────────────────────────
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '四靈遺跡',
+    pools: [
+      { label: '初級', items: [
+        { name: '香香',   tier: 'A' },
+        { name: '能量汽水', tier: 'A' },
+      ]},
+      { label: '中級', items: [
+        { name: '渦輪',     tier: 'SS' },
+        { name: '能量汽水', tier: 'A'  },
+      ]},
+      { label: '高級', items: [
+        { name: '守護神碎片', tier: 'SSS' },
+        { name: '黑卡',       tier: 'SSS' },
+        { name: '特級挑戰書', tier: 'S'   },
+        { name: '香香',       tier: 'A'   },
+        { name: '能量汽水',   tier: 'A'   },
+      ]},
+    ],
+  },
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '運動會',
+    pools: [
+      { label: '初級', items: [
+        { name: '人才卡碎片',       tier: 'SS' },
+        { name: '致富經(建議保留)', tier: 'B'  },
+      ]},
+      { label: '中級', items: [
+        { name: '聚義令', tier: 'SS' },
+        { name: '小菜',   tier: 'A'  },
+        { name: '小飲',   tier: 'A'  },
+      ]},
+      { label: '高級', items: [
+        { name: '皮膚(藝人皮膚+鄭經理)', tier: 'SSS' },
+        { name: '聚義令',               tier: 'SS'  },
+        { name: '大魚',                 tier: 'SS'  },
+        { name: '大肉',                 tier: 'SS'  },
+      ]},
+    ],
+  },
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '公會爭霸賽',
+    pools: [{ items: [
+      { name: '人參',       tier: 'SS' },
+      { name: '引薦卡碎片', tier: 'SS' },
+      { name: '澡堂票',     tier: 'S'  },
+      { name: '春耕',       tier: 'S'  },
+      { name: '香香',       tier: 'A'  },
+    ]}],
+  },
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '楚漢爭霸', note: '樓層越高耗費越低，日限購',
+    pools: [
+      { label: '烽煙四起(銅幣)', items: [
+        { name: '兵符×300', tier: 'S' },
+      ]},
+      { label: '中原逐鹿(銀幣)', items: [
+        { name: '黑卡(優先換三層)', tier: 'SSS' },
+        { name: '兵符',             tier: 'S'   },
+        { name: '香香',             tier: 'A'   },
+      ]},
+      { label: '問鼎天下(金幣)', items: [
+        { name: '黑卡', tier: 'SSS' },
+        { name: '皮膚', tier: 'SSS' },
+        { name: '兵符', tier: 'S'   },
+        { name: '香香', tier: 'A'   },
+      ]},
+    ],
+  },
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '決戰光明頂',
+    pools: [{ items: [
+      { name: '印記',       tier: 'SSS' },
+      { name: '英雄帖',     tier: 'SSS' },
+      { name: '頂尖自選箱', tier: 'SSS' },
+      { name: '人才卡碎片', tier: 'SS'  },
+      { name: '致富經',     tier: 'SS'  },
+      { name: '護膚脂',     tier: 'S'   },
+      { name: '澡堂票',     tier: 'S'   },
+      { name: '三件套',     tier: 'A'   },
+    ]}],
+  },
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '問鼎中原',
+    pools: [{ items: [
+      { name: '黃石遺卷', tier: 'SSS' },
+      { name: '兵符',     tier: 'S'   },
+      { name: '春耕',     tier: 'S'   },
+      { name: '三件套',   tier: 'A'   },
+    ]}],
+  },
+  {
+    cat: '公會賽', catId: 'guild',
+    name: '賽龍舟',
+    pools: [{ items: [
+      { name: '小菜', tier: 'A' },
+      { name: '小飲', tier: 'A' },
+      { name: '香香', tier: 'A' },
+    ]}],
+  },
+
+  // ── 氪金抽獎 ──────────────────────────────────────────
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '烏龜對對碰', note: '道具不保留',
+    pools: [
+      { label: '金龜', items: [
+        { name: '黑卡',     tier: 'SSS' },
+        { name: '金色三件套', tier: 'SSS' },
+      ]},
+      { label: '銀龜', items: [
+        { name: '碎片(水滸、英雄、人才卡)', tier: 'SS' },
+        { name: '致富經',                   tier: 'SS' },
+        { name: '風華綴玉',                 tier: 'S'  },
+      ]},
+      { label: '玩偶龜', items: [
+        { name: '錄影廳', tier: 'S' },
+        { name: '澡堂票', tier: 'S' },
+        { name: '護膚脂', tier: 'S' },
+        { name: '三件套', tier: 'A' },
+        { name: '豬腳麵', tier: 'A' },
+      ]},
+    ],
+  },
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '黃金礦工', note: '道具不保留',
+    pools: [
+      { label: '紅水晶', items: [
+        { name: '黑卡', tier: 'SSS' },
+      ]},
+      { label: '藍水晶', items: [
+        { name: '人才卡碎片', tier: 'SS' },
+        { name: '大魚',       tier: 'SS' },
+        { name: '大肉',       tier: 'SS' },
+      ]},
+      { label: '黃金', items: [
+        { name: '小菜',   tier: 'A' },
+        { name: '小飲',   tier: 'A' },
+        { name: '香香',   tier: 'A' },
+        { name: '三件套', tier: 'A' },
+      ]},
+    ],
+  },
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '幸運之夜', note: '道具不保留',
+    pools: [
+      { label: '燈', items: [
+        { name: '八珍宴帖', tier: 'SSS' },
+      ]},
+      { label: '玉佩', items: [
+        { name: '副業許可證', tier: 'SSS' },
+      ]},
+      { label: '黃珠', items: [
+        { name: '小喇叭', tier: 'S' },
+        { name: '三件套', tier: 'A' },
+        { name: '香香',   tier: 'A' },
+      ]},
+    ],
+  },
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '校園遊戲',
+    pools: [{ items: [
+      { name: '渦輪',       tier: 'SS' },
+      { name: '人參',       tier: 'SS' },
+      { name: '人才卡碎片', tier: 'SS' },
+      { name: '澡堂票',     tier: 'S'  },
+      { name: '舞廳票',     tier: 'S'  },
+      { name: '護膚脂',     tier: 'S'  },
+      { name: '三件套',     tier: 'A'  },
+    ]}],
+  },
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '拔蘿蔔',
+    pools: [{ items: [
+      { name: '人參',   tier: 'SS' },
+      { name: '保養脂', tier: 'S'  },
+      { name: '計算機', tier: 'S'  },
+      { name: '錄影廳', tier: 'S'  },
+      { name: '澡堂票', tier: 'S'  },
+      { name: '春耕票', tier: 'S'  },
+      { name: '豬腳麵', tier: 'A'  },
+    ]}],
+  },
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '糖畫攤', note: '道具不保留',
+    pools: [
+      { label: '金', items: [
+        { name: '盛宴帖', tier: 'SSS' },
+        { name: '雪花膏', tier: 'S'   },
+      ]},
+      { label: '紫色', items: [
+        { name: '小喇叭', tier: 'S' },
+        { name: '香香',   tier: 'A' },
+      ]},
+    ],
+  },
+  {
+    cat: '氪金抽獎', catId: 'gacha',
+    name: '女神花語',
+    pools: [{ items: [
+      { name: '典雅禮盒',   tier: 'SS' },
+      { name: '影視邀請函', tier: 'S'  },
+      { name: '小喇叭',     tier: 'S'  },
+      { name: '禮袋',       tier: 'A'  },
+    ]}],
+  },
+
+];
+
+/* =====================================================
+ * 渲染邏輯 — 以下一般不需修改
+ * ===================================================== */
+const TIER_ORDER = { SSS: 0, SS: 1, S: 2, A: 3, B: 4 };
+const TIER_CLASS  = { SSS: 't-SSS', SS: 't-SS', S: 't-S', A: 't-A', B: 't-B' };
+
+function tierBadge(item) {
+  const cls = TIER_CLASS[item.tier] || 't-B';
+  return `<span class="tier ${cls}">${item.name}</span>`;
+}
+
+function itemsHtml(items) {
+  const sorted = [...items].sort((a, b) => (TIER_ORDER[a.tier] ?? 5) - (TIER_ORDER[b.tier] ?? 5));
+  return `<div class="items-cell">${sorted.map(tierBadge).join('')}</div>`;
+}
+
+let currentFilter = 'all';
+
+// build filter tabs
+const catIds = [...new Set(DATA.map(d => d.catId))];
+const catMap  = Object.fromEntries(DATA.map(d => [d.catId, d.cat]));
+const tabsEl  = document.getElementById('filterTabs');
+tabsEl.innerHTML = [{ catId: 'all', label: '全部' }, ...catIds.map(id => ({ catId: id, label: catMap[id] }))]
+  .map(t => `<button class="filter-tab${t.catId === 'all' ? ' active' : ''}" onclick="setFilter('${t.catId}')">${t.label}</button>`)
+  .join('');
+
+function setFilter(catId) {
+  currentFilter = catId;
+  document.querySelectorAll('.filter-tab').forEach(b => {
+    b.classList.toggle('active', b.dataset.cid === catId || (catId === 'all' && b.textContent === '全部'));
+  });
+  // re-tag active by text matching (simpler)
+  document.querySelectorAll('.filter-tab').forEach(b => {
+    const label = catId === 'all' ? '全部' : catMap[catId];
+    b.classList.toggle('active', b.textContent === label);
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const filtered = currentFilter === 'all' ? DATA : DATA.filter(d => d.catId === currentFilter);
+  let html = '';
+  let prevCat = null;
+
+  for (const act of filtered) {
+    if (currentFilter === 'all' && act.cat !== prevCat) {
+      html += `<tr class="cat-row"><td colspan="3">${act.cat}</td></tr>`;
+      prevCat = act.cat;
+    }
+
+    const singlePool = act.pools.length === 1 && !act.pools[0].label;
+    const nameCell = `<div class="activity-name">${act.name}</div>${act.note ? `<div class="activity-note">${act.note}</div>` : ''}`;
+
+    if (singlePool) {
+      html += `<tr>
+        <td class="activity-td">${nameCell}</td>
+        <td class="pool-td pool-label">—</td>
+        <td>${itemsHtml(act.pools[0].items)}</td>
+      </tr>`;
+    } else {
+      act.pools.forEach((pool, i) => {
+        if (i === 0) {
+          html += `<tr>
+            <td class="activity-td" rowspan="${act.pools.length}">${nameCell}</td>
+            <td class="pool-td pool-label">${pool.label || '—'}</td>
+            <td>${itemsHtml(pool.items)}</td>
+          </tr>`;
+        } else {
+          html += `<tr>
+            <td class="pool-td pool-label">${pool.label || '—'}</td>
+            <td>${itemsHtml(pool.items)}</td>
+          </tr>`;
+        }
+      });
+    }
+  }
+
+  document.getElementById('tableBody').innerHTML = html;
+}
+
+renderTable();
+</script>
 </body>
 </html>
