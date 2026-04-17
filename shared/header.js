@@ -22,7 +22,7 @@
   <div class="inner">
     <a class="logo" href="${root}index.html">
       <span class="icon">🕹️</span>
-      <span>時光雜貨店小工具</span>
+      <span>醬⨉時光雜貨店小工具</span>
     </a>
     ${backBtn}
   </div>
