@@ -16,13 +16,13 @@
         <svg viewBox="0 0 20 20"><path d="M12.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z"/></svg>
         返回首頁
       </a>`
-    : `<span class="header-subtitle">選擇一個工具開始使用</span>`;
+    : `<span class="header-subtitle">選擇一個小工具開始使用</span>`;
 
   const html = `<header class="site-header">
   <div class="inner">
     <a class="logo" href="${root}index.html">
-      <span class="icon">🧰</span>
-      <span>工具總覽</span>
+      <span class="icon">🕹️</span>
+      <span>時光雜貨店小工具</span>
     </a>
     ${backBtn}
   </div>
