@@ -14,7 +14,7 @@
   const backBtn = isToolPage
     ? `<a class="back-btn" href="${root}index.html">
         <svg viewBox="0 0 20 20"><path d="M12.707 15.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L8.414 10l4.293 4.293a1 1 0 010 1.414z"/></svg>
-        返回首頁
+        首頁
       </a>`
     : `<span class="header-subtitle">選擇項目開始使用</span>`;
 
