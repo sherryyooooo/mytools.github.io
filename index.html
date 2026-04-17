@@ -1,78 +1,59 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>工具總覽</title>
-<link rel="stylesheet" href="shared/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>工具總覽</title>
+  <link rel="stylesheet" href="shared/style.css">
 </head>
+
 <body>
 
-<script src="shared/header.js"></script>
+  <script src="shared/header.js"></script>
 
-<div class="page-container">
-  <div id="toolContainer"></div>
-</div>
+  <div class="page-container">
+    <div id="toolContainer"></div>
+  </div>
 
-<script>
-/* ===== Tool Registry =====
- * 新增工具：在對應的 category.tools 陣列中新增一個物件
- * 新增類別：在 categories 陣列中新增一個物件，並建立對應的 tools/*.html（參考 tools/_template.html）
- * enabled: false → 工具保留在清單中但不顯示於首頁
- * ======================== */
-const categories = [
-  {
-    id: 'report',
-    label: '資料報表',
-    tools: [
+  <script>
+    /* ===== Tool Registry =====
+     * 新增工具：在對應的 category.tools 陣列中新增一個物件
+     * 新增類別：在 categories 陣列中新增一個物件，並建立對應的 tools/*.html（參考 tools/_template.html）
+     * enabled: false → 工具保留在清單中但不顯示於首頁
+     * ======================== */
+    const categories = [
       {
-        enabled: false,
-        icon: '📊',
-        iconBg: '#E8F0FE',
-        title: 'iOS 使用人數表',
-        desc: '上傳 Firebase 匯出的 CSV，自動整理 iOS 版本分佈、大版本佔比統計報表',
-        href: 'tools/ios-report.html',
+        id: 'game',
+        label: '遊戲相關',
+        tools: [
+          {
+            enabled: true,
+            icon: '⚖️',
+            iconBg: '#FFF3E0',
+            title: '影視廣告合作比對器',
+            desc: '自動媒合影視與廣告作品，找出誤差最小、組數最多的配對組合',
+            href: 'tools/work-matcher.html',
+          },
+          {
+            enabled: true,
+            icon: '🛍️',
+            iconBg: '#FFF0F5',
+            title: '兌換推薦指南',
+            desc: '各活動建議兌換項目，依 SSS～B 分級標示兌換優先度，一覽表格快速查找',
+            href: 'tools/exchange-guide.html',
+          },
+        ],
       },
-      {
-        enabled: false,
-        icon: '💹',
-        iconBg: '#E8F5E9',
-        title: '財富管理轉檔',
-        desc: '上傳 WMCC04_EC_*.TXT 商品主檔，預覽指定欄位資料，並匯出含全部欄位與指定欄位的 Excel',
-        href: 'tools/wealth-convert.html',
-      },
-    ],
-  },
-  {
-    id: 'utility',
-    label: '工具輔助',
-    tools: [
-      {
-        enabled: true,
-        icon: '⚖️',
-        iconBg: '#FFF3E0',
-        title: '時光雜貨店作品比對器',
-        desc: '自動媒合影視與廣告作品，找出誤差最小、組數最多的配對組合',
-        href: 'tools/work-matcher.html',
-      },
-      {
-        enabled: true,
-        icon: '🛍️',
-        iconBg: '#FFF0F5',
-        title: '兌換推薦指南',
-        desc: '各活動建議兌換項目，依 SSS～B 分級標示兌換優先度，一覽表格快速查找',
-        href: 'tools/exchange-guide.html',
-      },
-    ],
-  },
-];
 
-const container = document.getElementById('toolContainer');
-container.innerHTML = categories
-  .map(cat => {
-    const visibleTools = cat.tools.filter(t => t.enabled);
-    if (visibleTools.length === 0) return '';
-    return `
+    ];
+
+    const container = document.getElementById('toolContainer');
+    container.innerHTML = categories
+      .map(cat => {
+        const visibleTools = cat.tools.filter(t => t.enabled);
+        if (visibleTools.length === 0) return '';
+        return `
   <section class="tool-section">
     <h2 class="section-label">${cat.label}</h2>
     <div class="tool-grid">
@@ -86,9 +67,10 @@ container.innerHTML = categories
       `).join('')}
     </div>
   </section>`;
-  })
-  .join('');
+      })
+      .join('');
 
-</script>
+  </script>
 </body>
+
 </html>
