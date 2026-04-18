@@ -8,8 +8,25 @@
  * 若需修改 Logo 文字、圖示、返回按鈕文字，只需編輯此檔案。
  * ===================================================== */
 (function () {
+  // --- 1. 新增：GA4 追蹤碼邏輯 ---
+  const GA_MEASUREMENT_ID = 'G-BB499GPM88'; // 這裡換成你的評估 ID
+
+  // 動態載入 Google 官方 JS
+  const gaScript = document.createElement('script');
+  gaScript.async = true;
+  gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+  document.head.appendChild(gaScript);
+
+  // 初始化 gtag
+  window.dataLayer = window.dataLayer || [];
+  function gtag() { dataLayer.push(arguments); }
+  gtag('js', new Date());
+  gtag('config', GA_MEASUREMENT_ID);
+  // ----------------------------
+
+
   const isToolPage = window.location.pathname.includes('/tools/');
-  const root       = isToolPage ? '../' : '';
+  const root = isToolPage ? '../' : '';
 
   const backBtn = isToolPage
     ? `<a class="back-btn" href="${root}index.html">
