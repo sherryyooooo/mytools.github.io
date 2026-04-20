@@ -24,16 +24,24 @@
      * ======================== */
     const categories = [
       {
-        id: 'game',
-        label: '遊戲相關',
+        id: 'daily',
+        label: '日常相關',
         tools: [
           {
             enabled: true,
             icon: '⚖️',
             iconBg: '#FFF3E0',
-            title: '影視廣告合作比對器',
+            title: '作品合作比對器',
             desc: '自動媒合影視與廣告作品，找出誤差最小、組數最多的配對組合',
             href: 'tools/work-matcher.html',
+          },
+          {
+            enabled: true,
+            icon: '⚖️',
+            iconBg: '#E8F5E9',
+            title: '作品合作比對器(記憶版)',
+            desc: '我方作品本機儲存，對方作品每次貼上，自動媒合組數最大化的組合',
+            href: 'tools/work-matcher-pro.html',
           },
           {
             enabled: true,
@@ -42,6 +50,20 @@
             title: '兌換推薦指南',
             desc: '各活動建議兌換項目，依 SSS～B 分級標示兌換優先度，一覽表格快速查找',
             href: 'tools/exchange-guide.html',
+          },
+        ],
+      },
+      {
+        id: 'farm',
+        label: '農田合作社-生產技術研究',
+        tools: [
+          {
+            enabled: true,
+            icon: '🌾',
+            iconBg: '#EFF6FF',
+            title: '農田人才鍛鍊',
+            desc: '輸入各技能花費與增加數值，自動標示最優加點項目並提示最佳換點時機',
+            href: 'tools/farm-training.html',
           },
         ],
       },
