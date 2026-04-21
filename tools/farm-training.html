@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>農田人才鍛鍊</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── 色彩語意 ── */
+    :root {
+      --grain-bg:   #EFF6FF;
+      --grain-fg:   #1D4ED8;
+      --meat-bg:    #FFF0F0;
+      --meat-fg:    #B91C1C;
+      --best-grain: #DBEAFE;
+      --best-meat:  #FFE4E4;
+      --best-grain-border: #93C5FD;
+      --best-meat-border:  #FCA5A5;
+    }
+
+    /* ── 輸入表格卡片 ── */
+    .input-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .input-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      font-weight: 700;
+      font-size: 15px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-grain { background: var(--grain-bg); color: var(--grain-fg); }
+    .badge-meat  { background: var(--meat-bg);  color: var(--meat-fg); }
+
+    /* ── 分類+項目 合併的儲存格 ── */
+    .data-table tbody td.item-merged-cell {
+      padding: 5px 12px;
+      vertical-align: middle;
+      background: var(--card) !important; /* 高亮行不影響此欄 */
+      border-right: 1px solid var(--border);
+      border-left: none !important;       /* 高亮左框線不要加在此欄 */
+    }
+    .item-merged-cell .item-inner {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .item-merged-cell .item-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── 表格 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      table-layout: fixed;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table thead th.num { text-align: right; }
+    .data-table tbody td {
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody td.label-cell {
+      padding: 5px 14px;
+      font-weight: 600;
+      color: var(--text);
+      font-size: 14px;
+      white-space: nowrap;
+    }
+    .data-table tbody td.tier-cell {
+      padding: 5px 8px;
+      white-space: nowrap;
+    }
+    .data-table tbody td.sub-cell {
+      padding: 5px 6px;
+      font-size: 12px;
+      color: var(--sub);
+      white-space: nowrap;
+    }
+    .data-table tbody td.num-cell { text-align: right; padding: 5px 10px; }
+    .data-table tbody td.result-cell {
+      text-align: right;
+      padding: 5px 10px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .data-table tbody td.note-cell {
+      padding: 5px 14px;
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    /* 數字輸入框 */
+    .num-input {
+      width: 68px;
+      padding: 3px 6px;
+      font-size: 14px;
+      font-family: inherit;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      text-align: right;
+      transition: border-color 0.15s;
+      color: var(--text);
+      background: var(--card);
+    }
+    .num-input:focus { border-color: var(--blue); }
+
+    /* ── 最佳子項高亮（cell 層級）── */
+    td.sub-best-grain           { background: var(--best-grain) !important; }
+    td.sub-best-meat            { background: var(--best-meat)  !important; }
+    td.sub-best-grain.sub-first { border-left: 3px solid var(--best-grain-border) !important; }
+    td.sub-best-meat.sub-first  { border-left: 3px solid var(--best-meat-border)  !important; }
+    /* 隱藏相關人才欄（按鈕切換）*/
+    #dataTable.hide-talent .col-talent { display: none; }
+    /* 隱藏人才欄時：col 9 寬度歸零，6個數值欄等分剩餘空間 */
+    #dataTable.hide-talent col:nth-child(9) { width: 0 !important; }
+    #dataTable.hide-talent col:nth-child(3),
+    #dataTable.hide-talent col:nth-child(4),
+    #dataTable.hide-talent col:nth-child(5),
+    #dataTable.hide-talent col:nth-child(6),
+    #dataTable.hide-talent col:nth-child(7),
+    #dataTable.hide-talent col:nth-child(8) { width: auto !important; }
+    /* ── 序號儲存格 ── */
+    .data-table tbody td.seq-cell {
+      padding: 4px 6px;
+      font-size: 11px;
+      color: var(--sub);
+      text-align: center;
+      white-space: nowrap;
+      background: var(--bg);
+    }
+    /* ── 子項群組標題（thead 第一行）── */
+    .data-table thead th.sub-header {
+      text-align: center;
+      background: #EEF2FF;
+      color: #3730A3;
+      padding: 5px 8px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table thead tr:nth-child(2) th {
+      padding: 4px 8px;
+      font-size: 11px;
+      background: #fafafa;
+      border-top: 1px solid var(--border);
+    }
+    /* 人才欄顯示切換按鈕 */
+    .clear-data-btn.toggle { background: #F3F4F6; color: #374151; }
+
+    /* ── 當前最優區塊（仿作品列表整體結構）── */
+    .upload-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .player-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .box-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .input-box {
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .box-header {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    .best-header-grain { background: var(--grain-bg); color: var(--grain-fg); }
+    .best-header-meat  { background: var(--meat-bg);  color: var(--meat-fg); }
+    .best-body {
+      padding: 10px 12px;
+      min-height: 62px;
+    }
+    .banner-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .banner-switch {
+      font-size: 12px;
+      color: var(--sub);
+      line-height: 1.5;
+    }
+    .banner-switch strong { color: var(--text); font-size: 14px; }
+
+    /* ── 加點說明小字 ── */
+    .hint-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--sub);
+      padding: 10px 20px;
+      border-top: 1px solid var(--border);
+    }
+    .hint-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* 隱藏數字輸入的上下箭頭 */
+    .num-input::-webkit-outer-spin-button,
+    .num-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .num-input { -moz-appearance: textfield; }
+
+    /* 表格最小寬度 = 固定欄總寬 654px，不含人才欄 */
+    .data-table { min-width: 654px; }
+    /* 當視窗 ≤ 750px 時自動隱藏人才欄，6個數值欄等分剩餘空間 */
+    @media (max-width: 750px) {
+      #dataTable .col-talent { display: none !important; }
+      #dataTable col:nth-child(9) { width: 0 !important; }
+      #dataTable col:nth-child(3),
+      #dataTable col:nth-child(4),
+      #dataTable col:nth-child(5),
+      #dataTable col:nth-child(6),
+      #dataTable col:nth-child(7),
+      #dataTable col:nth-child(8) { width: auto !important; }
+    }
+
+    /* ── 清除按鈕（仿 work-matcher-pro 風格）── */
+    .clear-action-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+    .clear-data-btn {
+      flex: 1;
+      padding: 7px 0;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      background: #EEF2FF;
+      color: #3730A3;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .clear-data-btn:hover  { opacity: 0.8; transform: translateY(-1px); }
+    .clear-data-btn:active { transform: translateY(0); }
+    .clear-data-btn.danger { background: #FFF3E0; color: #E65100; }
+
+    @media (max-width: 640px) {
+      .num-input { width: 72px; }
+      .player-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── 人才徽章品質（僅顯示用，editing 在 settings.html）── */
+
+    /* ── 人才徽章（表格相關人才欄）── */
+    .talent-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px 10px;
+      min-height: 34px;
+    }
+    .talent-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .tq-precious { background: #FEF9C3; color: #92400E; }
+    .tq-superior { background: #F3E8FF; color: #7E22CE; }
+    .tq-good     { background: #DBEAFE; color: #1D4ED8; }
+    .tq-none     { background: #F3F4F6; color: #6B7280; }
+  </style>
+</head>
+<body>
+
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <div class="tool-page-header">
+    <h1>🌾 農田人才鍛鍊</h1>
+    <p>輸入各項目的花費與增加數值，自動標示當前最優加點項目，並計算需加到幾點時應換下一項</p>
+  </div>
+
+  <!-- 使用說明 -->
+  <div class="guide-card">
+    <div class="guide-header" onclick="toggleGuide()">
+      <span>📖 使用說明</span>
+      <span class="guide-toggle" id="guideToggle">▼ 展開</span>
+    </div>
+    <div class="guide-body" id="guideBody" style="display:none">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>填寫花費與增加</strong><br>
+            依照遊戲中各技能目前顯示的「花費」與升級後「增加」數值，填入對應欄位。資料自動存入本機，重新開啟仍保留。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>設定人才資訊</strong><br>
+            開啟「⚙️ 設定人才」，可在設定中心設定每位人才的品質（珍貴／卓越／優秀）及是否擁有。設定自動儲存至本機，農田人才鍛鍊頁面會即時依設定顯示對應顏色標籤。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>解讀高亮與人才顏色</strong><br>
+            <span style="display:inline-block;width:12px;height:12px;background:#DBEAFE;border-radius:2px;vertical-align:middle;margin-right:4px;border:1px solid #93C5FD"></span>藍色列 = 糧票當前最優；
+            <span style="display:inline-block;width:12px;height:12px;background:#FFE4E4;border-radius:2px;vertical-align:middle;margin-right:4px;border:1px solid #FCA5A5"></span>紅色列 = 肉票當前最優。人才標籤：
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#FEF9C3;color:#92400E;font-size:11px;font-weight:600">珍貴</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#F3E8FF;color:#7E22CE;font-size:11px;font-weight:600">卓越</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#DBEAFE;color:#1D4ED8;font-size:11px;font-weight:600">優秀</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#F3F4F6;color:#6B7280;font-size:11px;font-weight:600">未擁有</span></div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>查看換點建議</strong><br>
+            上方卡片即時顯示各類別最優項目與「加到多少時換下一項」的閾值，所有計算無需按鈕即時更新。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">5</div>
+          <div class="step-text"><strong>清除本機資料</strong><br>
+            「清除數值輸入」清空所有花費與增加；人才設定請至「⚙️ 設定人才」統一管理。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 當前最優區塊 -->
+  <div class="upload-card">
+    <div class="player-grid">
+      <div class="box-wrapper">
+        <div class="section-title">🌾 糧票</div>
+        <div class="input-box">
+          <div class="box-header best-header-grain">當前最優項目</div>
+          <div class="best-body">
+            <div class="banner-title" id="bestGrainName">—</div>
+            <div class="banner-switch" id="bestGrainSwitch">請先填寫數值</div>
+          </div>
+        </div>
+      </div>
+      <div class="box-wrapper">
+        <div class="section-title">🥩 肉票</div>
+        <div class="input-box">
+          <div class="box-header best-header-meat">當前最優項目</div>
+          <div class="best-body">
+            <div class="banner-title" id="bestMeatName">—</div>
+            <div class="banner-switch" id="bestMeatSwitch">請先填寫數值</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="clear-action-row">
+      <button class="clear-data-btn toggle" id="btnToggleTalent" onclick="toggleTalentColumn()">隱藏人才欄</button>
+      <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️ 設定人才</a>
+      <button class="clear-data-btn" onclick="clearInputState()">清除數值輸入</button>
+    </div>
+  </div>
+
+  <!-- 輸入表格 -->
+  <div class="input-card">
+    <div class="input-card-header">
+      <span>各項目數值輸入(增加越多越優先)</span>
+      <span style="font-size:12px;font-weight:400;color:var(--sub)">填寫後即時計算</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="dataTable">
+        <colgroup>
+          <col style="width:44px">   <!-- 序號 -->
+          <col style="width:130px">  <!-- 分類/項目 -->
+          <col style="width:80px">   <!-- 花費① -->
+          <col style="width:80px">   <!-- 增加① -->
+          <col style="width:80px">   <!-- 每元增加① -->
+          <col style="width:80px">   <!-- 花費② -->
+          <col style="width:80px">   <!-- 增加② -->
+          <col style="width:80px">   <!-- 每元增加② -->
+          <col>                      <!-- 相關人才：自動填滿剩餘空間 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th rowspan="2">序號</th>
+            <th rowspan="2">分類 / 項目</th>
+            <th colspan="3" class="sub-header">初步研究</th>
+            <th colspan="3" class="sub-header">精準突破</th>
+            <th rowspan="2" class="col-talent">相關人才</th>
+          </tr>
+          <tr>
+            <th class="num">花費</th>
+            <th class="num">增加</th>
+            <th class="num">每元增加</th>
+            <th class="num">花費</th>
+            <th class="num">增加</th>
+            <th class="num">每元增加</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="hint-row">
+      <span class="hint-dot" style="background:#DBEAFE;border:1px solid #93C5FD"></span>
+      <span>糧票最優項</span>
+      <span class="hint-dot" style="background:#FFE4E4;border:1px solid #FCA5A5;margin-left:8px"></span>
+      <span>肉票最優項</span>
+      <span style="margin-left:12px;color:#aaa">｜ 花費與增加均為空白時不納入計算</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="../data/settings-store.js"></script>
+<script src="../data/farm-training-data.js"></script>
+<script>
+// 人才品質常數、talentState、getTalentInfo、renderTalentBadgesHtml
+// 均由 settings-store.js 提供
+
+/* =====================================================
+ * 狀態：每列的花費(E) / 增加(F) 值
+ * ===================================================== */
+const LS_STATE_KEY = 'ft_row_state';
+function loadRowState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_STATE_KEY));
+    if (Array.isArray(saved) && saved.length === ROWS.length) return saved;
+  } catch {}
+  return ROWS.map(() => ({ cost: '', gain: '' }));
+}
+function saveRowState() {
+  localStorage.setItem(LS_STATE_KEY, JSON.stringify(state));
+}
+const state = loadRowState();
+
+/* ── 工具函式 ── */
+const num = v => { const n = parseFloat(v); return isNaN(n) || v === '' ? null : n; };
+const fmt = n => n === null ? '—' : n.toFixed(2);
+
+/* ── 計算每元增加（G欄邏輯：IFERROR(IF(E=0,"",F/E),"")）── */
+function calcRatio(cost, gain) {
+  const c = num(cost), g = num(gain);
+  if (c === null || g === null) return null;
+  if (c === 0) return null;
+  return g / c;
+}
+
+/* ── 建立表格 DOM ── */
+function buildTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  // 收集父列索引（name 非空）
+  const parentIndices = [];
+  ROWS.forEach((r, i) => { if (r.name) parentIndices.push(i); });
+
+  parentIndices.forEach((pi, gPos) => {
+    const row = ROWS[pi];
+    const tr  = document.createElement('tr');
+
+    // 序號（每 3 個一組）
+    const tdSeq = document.createElement('td');
+    tdSeq.className = 'seq-cell';
+    tdSeq.textContent = `${Math.floor(gPos / 3) + 1}-${(gPos % 3) + 1}`;
+    tr.appendChild(tdSeq);
+
+    // 分類 + 項目
+    const tdItem = document.createElement('td');
+    tdItem.className = 'item-merged-cell';
+    const badgeCls = row.type === 'grain' ? 'badge-grain' : 'badge-meat';
+    const badgeTxt = row.type === 'grain' ? '糧票' : '肉票';
+    tdItem.innerHTML = `<div class="item-inner"><span class="badge ${badgeCls}">${badgeTxt}</span><span class="item-name">${row.name}</span></div>`;
+    tr.appendChild(tdItem);
+
+    // 插入子項欄位（花費 / 增加 / 每元增加），isFirst = 是否加 sub-first 邊框
+    function insertSub(rowIdx) {
+      const tdC = document.createElement('td');
+      tdC.className = 'num-cell sub-first';
+      tdC.dataset.rowIdx = rowIdx;
+      const inC = document.createElement('input');
+      inC.type = 'number'; inC.min = '0'; inC.className = 'num-input';
+      inC.value = state[rowIdx].cost;
+      inC.addEventListener('input', () => { state[rowIdx].cost = inC.value; saveRowState(); recalc(); });
+      tdC.appendChild(inC);
+      tr.appendChild(tdC);
+
+      const tdG = document.createElement('td');
+      tdG.className = 'num-cell';
+      tdG.dataset.rowIdx = rowIdx;
+      const inG = document.createElement('input');
+      inG.type = 'number'; inG.min = '0'; inG.className = 'num-input';
+      inG.value = state[rowIdx].gain;
+      inG.addEventListener('input', () => { state[rowIdx].gain = inG.value; saveRowState(); recalc(); });
+      tdG.appendChild(inG);
+      tr.appendChild(tdG);
+
+      const tdR = document.createElement('td');
+      tdR.className = 'result-cell';
+      tdR.dataset.rowIdx = rowIdx;
+      tdR.id = `ratio-${rowIdx}`;
+      tdR.textContent = '—';
+      tr.appendChild(tdR);
+    }
+
+    // 初步研究
+    insertSub(pi);
+    // 精準突破
+    const ci = pi + 1;
+    if (ci < ROWS.length && ROWS[ci].name === '') {
+      insertSub(ci);
+    } else {
+      for (let k = 0; k < 3; k++) {
+        const td = document.createElement('td'); td.textContent = '—'; tr.appendChild(td);
+      }
+    }
+
+    // 相關人才
+    const tdT = document.createElement('td');
+    tdT.id = `talent-cell-${pi}`;
+    tdT.className = 'col-talent';
+    tdT.innerHTML = `<div class="talent-badges">${renderTalentBadgesHtml(row.talents || [])}</div>`;
+    tr.appendChild(tdT);
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── 重新計算並更新 UI ── */
+function recalc() {
+  // 1. 算出每列 ratio
+  const ratios = state.map(s => calcRatio(s.cost, s.gain));
+
+  // 2. 更新比值欄位
+  ratios.forEach((r, i) => {
+    const el = document.getElementById(`ratio-${i}`);
+    if (el) el.textContent = fmt(r);
+  });
+
+  // 3. 找糧/肉的最大 ratio
+  const grainRatios = ratios.map((r, i) => ROWS[i].type === 'grain' ? r : null);
+  const meatRatios  = ratios.map((r, i) => ROWS[i].type === 'meat'  ? r : null);
+  const maxGrain = Math.max(...grainRatios.filter(r => r !== null), -Infinity);
+  const maxMeat  = Math.max(...meatRatios.filter(r => r !== null), -Infinity);
+
+  // 4. 清除並重新套用 cell 高亮
+  document.querySelectorAll('#tableBody td[data-row-idx]').forEach(td => {
+    td.classList.remove('sub-best-grain', 'sub-best-meat');
+  });
+  ratios.forEach((r, i) => {
+    if (r === null) return;
+    const cells = document.querySelectorAll(`#tableBody td[data-row-idx="${i}"]`);
+    if (ROWS[i].type === 'grain' && r === maxGrain) cells.forEach(td => td.classList.add('sub-best-grain'));
+    if (ROWS[i].type === 'meat'  && r === maxMeat)  cells.forEach(td => td.classList.add('sub-best-meat'));
+  });
+
+  // 5. 更新橫幅
+  updateBanner('grain', grainRatios, maxGrain);
+  updateBanner('meat',  meatRatios,  maxMeat);
+}
+
+/*
+ * 換點計算邏輯（對應 B27/B28 公式）：
+ *   目前最優項目的「增加(F)」除以「同類第二大每元增加」
+ *   = 加到這個增加量時，第二名的效益就會追上來
+ *
+ *   換句話說：若繼續加當前最優項目，當增加量超過此數值時，
+ *   改換第二優項目更划算。
+ */
+function updateBanner(type, typeRatios, maxVal) {
+  const validIndices = typeRatios
+    .map((r, i) => ({ r, i }))
+    .filter(x => x.r !== null);
+
+  const nameEl   = document.getElementById(type === 'grain' ? 'bestGrainName'   : 'bestMeatName');
+  const switchEl = document.getElementById(type === 'grain' ? 'bestGrainSwitch' : 'bestMeatSwitch');
+
+  if (validIndices.length === 0 || maxVal === -Infinity) {
+    nameEl.textContent   = '—';
+    switchEl.innerHTML   = '請先填寫數值';
+    return;
+  }
+
+  // 找最優項目 index
+  const bestIdx = validIndices.find(x => x.r === maxVal).i;
+  const bestRowName = ROWS[bestIdx].name || findParentName(bestIdx);
+  nameEl.textContent = `${bestRowName}（${ROWS[bestIdx].sub}）`;
+
+  // 找第二大
+  const sorted = [...validIndices].sort((a, b) => b.r - a.r);
+  if (sorted.length < 2) {
+    switchEl.innerHTML = '目前只有一筆資料，無法計算換點建議';
+    return;
+  }
+
+  const secondRatio = sorted[1].r;
+  const bestGain    = num(state[bestIdx].gain);
+
+  if (bestGain === null || secondRatio <= 0) {
+    switchEl.innerHTML = '無法計算換點（資料不足）';
+    return;
+  }
+
+  // 換點閾值 = 當前最優增加(F) / 第二名 ratio
+  const threshold = bestGain / secondRatio;
+  switchEl.innerHTML = `繼續加至增加量達 <strong>${threshold.toFixed(2)}</strong> 時，換下一項更划算`;
+}
+
+/* 找同項目的名稱（子項 name 為空時，往上找有名稱的那列）*/
+function findParentName(idx) {
+  for (let i = idx; i >= 0; i--) {
+    if (ROWS[i].name) return ROWS[i].name;
+  }
+  return '';
+}
+
+/* 取得該列對應的人才（有 name 的列自帶，空 name 子列往上繼承）*/
+function getRowTalents(idx) {
+  if (ROWS[idx].talents) return ROWS[idx].talents;
+  for (let i = idx - 1; i >= 0; i--) {
+    if (ROWS[i].name) return ROWS[i].talents || [];
+  }
+  return [];
+}
+
+/* updateAllTalentBadges 由 settings.html 設定後、頁面重新載入時自動更新 */
+
+function updateAllTalentBadges() {
+  ROWS.forEach((row, i) => {
+    if (!row.name) return;
+    const cell = document.getElementById(`talent-cell-${i}`);
+    if (cell) cell.innerHTML = `<div class="talent-badges">${renderTalentBadgesHtml(row.talents || [])}</div>`;
+  });
+}
+
+/* ── 清除功能 ── */
+window.clearInputState = function() {
+  if (!confirm('確定要清除所有花費與增加的輸入資料嗎？')) return;
+  state.forEach(s => { s.cost = ''; s.gain = ''; });
+  saveRowState();
+  buildTable();
+  recalc();
+};
+
+window.clearAll = function() {
+  if (!confirm('確定要清除所有花費與增加的輸入資料嗎？（人才設定請至設定中心管理）')) return;
+  state.forEach(s => { s.cost = ''; s.gain = ''; });
+  saveRowState();
+  buildTable();
+  recalc();
+};
+
+window.toggleTalentColumn = function() {
+  const table = document.getElementById('dataTable');
+  const btn   = document.getElementById('btnToggleTalent');
+  const hidden = table.classList.toggle('hide-talent');
+  btn.textContent = hidden ? '顯示人才欄' : '隱藏人才欄';
+};
+
+function toggleGuide() {
+  const body   = document.getElementById('guideBody');
+  const toggle = document.getElementById('guideToggle');
+  const open   = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  toggle.textContent = open ? '▲ 收合' : '▼ 展開';
+}
+
+// 初始化
+buildTable();
+recalc();
+</script>
+</body>
+</html>

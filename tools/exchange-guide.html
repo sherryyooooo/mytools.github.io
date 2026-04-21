@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>兌換推薦指南</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── Tier badge ── */
+    .tier {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tier-label {
+      font-size: 10px;
+      font-weight: 800;
+      opacity: 0.75;
+      margin-right: 1px;
+    }
+
+    .t-SSS {
+      background: #FFE4E4;
+      color: #B91C1C;
+    }
+
+    .t-SS {
+      background: #FFEDD5;
+      color: #C2410C;
+    }
+
+    .t-S {
+      background: #FEF9C3;
+      color: #854D0E;
+    }
+
+    .t-A {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .t-B {
+      background: #F3F4F6;
+      color: #6B7280;
+    }
+
+    /* ── Tier legend ── */
+    .tier-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+
+    .legend-label {
+      font-size: 12px;
+      color: var(--sub);
+      font-weight: 600;
+      margin-right: 4px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    /* ── Filter tabs ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .filter-tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+
+    .filter-tab.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .filter-tab:hover:not(.active) {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── Table ── */
+    .table-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    table.exchange {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+
+    table.exchange th {
+      background: var(--bg);
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+    }
+
+    table.exchange td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    table.exchange tbody tr:last-child>td {
+      border-bottom: none;
+    }
+
+    /* Category divider rows */
+    .cat-row>td {
+      padding: 7px 14px;
+      background: var(--bg);
+      font-weight: 700;
+      font-size: 12px;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-top: 2px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Activity & pool cells */
+    .activity-td {
+      border-right: 1px solid var(--border);
+      min-width: 130px;
+    }
+
+    .activity-name {
+      font-weight: 600;
+    }
+
+    .activity-note {
+      font-size: 12px;
+      color: var(--sub);
+      font-weight: 400;
+      margin-top: 2px;
+    }
+
+    .pool-td {
+      min-width: 80px;
+      border-right: 1px solid var(--border);
+    }
+
+    .pool-label {
+      font-size: 12px;
+      color: var(--sub);
+      white-space: nowrap;
+    }
+
+    .items-cell {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    @media (max-width: 600px) {
+
+      table.exchange th:nth-child(2),
+      table.exchange td.pool-td {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <script src="../shared/header.js"></script>
+
+  <div class="page-container">
+
+    <div class="tool-page-header">
+      <h1>🛍️ 兌換推薦指南</h1>
+      <p>各活動建議兌換項目，依優先度 SSS → B 標示，每列按等級高低排序 🔴尚在編輯中</p>
+    </div>
+
+    <!-- Tier Legend -->
+    <div class="tier-legend">
+      <span class="legend-label">優先度：</span>
+      <div class="legend-item"><span class="tier t-SSS">必換</span><span>SSS</span></div>
+      <div class="legend-item"><span class="tier t-SS">強推</span><span>SS</span></div>
+      <div class="legend-item"><span class="tier t-S">推薦</span><span>S</span></div>
+      <div class="legend-item"><span class="tier t-A">一般</span><span>A</span></div>
+      <div class="legend-item"><span class="tier t-B">不急</span><span>B/其他</span></div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="filter-tabs" id="filterTabs"></div>
+
+    <!-- Table -->
+    <div class="table-wrap">
+      <div class="table-scroll">
+        <table class="exchange">
+          <thead>
+            <tr>
+              <th style="min-width:140px">活動</th>
+              <th style="min-width:90px">兌換池</th>
+              <th>推薦兌換項目（由高至低）</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="../data/exchange-guide-data.js"></script>
+  <script>
+    /* =====================================================
+     * 渲染邏輯 — 以下一般不需修改
+     * ===================================================== */
+    const TIER_ORDER = { SSS: 0, SS: 1, S: 2, A: 3, B: 4 };
+    const TIER_CLASS = { SSS: 't-SSS', SS: 't-SS', S: 't-S', A: 't-A', B: 't-B' };
+
+    function tierBadge(item) {
+      const cls = TIER_CLASS[item.tier] || 't-B';
+      return `<span class="tier ${cls}">${item.name}</span>`;
+    }
+
+    function itemsHtml(items) {
+      const sorted = [...items].sort((a, b) => (TIER_ORDER[a.tier] ?? 5) - (TIER_ORDER[b.tier] ?? 5));
+      return `<div class="items-cell">${sorted.map(tierBadge).join('')}</div>`;
+    }
+
+    let currentFilter = 'all';
+
+    // build filter tabs
+    const catIds = [...new Set(DATA.map(d => d.catId))];
+    const catMap = Object.fromEntries(DATA.map(d => [d.catId, d.cat]));
+    const tabsEl = document.getElementById('filterTabs');
+    tabsEl.innerHTML = [{ catId: 'all', label: '全部' }, ...catIds.map(id => ({ catId: id, label: catMap[id] }))]
+      .map(t => `<button class="filter-tab${t.catId === 'all' ? ' active' : ''}" onclick="setFilter('${t.catId}')">${t.label}</button>`)
+      .join('');
+
+    function setFilter(catId) {
+      currentFilter = catId;
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.cid === catId || (catId === 'all' && b.textContent === '全部'));
+      });
+      // re-tag active by text matching (simpler)
+      document.querySelectorAll('.filter-tab').forEach(b => {
+        const label = catId === 'all' ? '全部' : catMap[catId];
+        b.classList.toggle('active', b.textContent === label);
+      });
+      renderTable();
+    }
+
+    function renderTable() {
+      const filtered = currentFilter === 'all' ? DATA : DATA.filter(d => d.catId === currentFilter);
+      let html = '';
+      let prevCat = null;
+
+      for (const act of filtered) {
+        if (currentFilter === 'all' && act.cat !== prevCat) {
+          html += `<tr class="cat-row"><td colspan="3">${act.cat}</td></tr>`;
+          prevCat = act.cat;
+        }
+
+        const singlePool = act.pools.length === 1 && !act.pools[0].label;
+        const nameCell = `<div class="activity-name">${act.name}</div>${act.note ? `<div class="activity-note">${act.note}</div>` : ''}`;
+
+        if (singlePool) {
+          html += `<tr>
+        <td class="activity-td">${nameCell}</td>
+        <td class="pool-td pool-label">—</td>
+        <td>${itemsHtml(act.pools[0].items)}</td>
+      </tr>`;
+        } else {
+          act.pools.forEach((pool, i) => {
+            if (i === 0) {
+              html += `<tr>
+            <td class="activity-td" rowspan="${act.pools.length}">${nameCell}</td>
+            <td class="pool-td pool-label">${pool.label || '—'}</td>
+            <td>${itemsHtml(pool.items)}</td>
+          </tr>`;
+            } else {
+              html += `<tr>
+            <td class="pool-td pool-label">${pool.label || '—'}</td>
+            <td>${itemsHtml(pool.items)}</td>
+          </tr>`;
+            }
+          });
+        }
+      }
+
+      document.getElementById('tableBody').innerHTML = html;
+    }
+
+    renderTable();
+  </script>
+</body>
+
+</html>
