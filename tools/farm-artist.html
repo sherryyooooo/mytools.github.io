@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>農田藝人鍛鍊</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── 表格 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 500px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table thead th.num { text-align: right; }
+    .data-table tbody td {
+      padding: 5px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody td.seq-cell {
+      font-size: 11px;
+      color: var(--sub);
+      text-align: center;
+      white-space: nowrap;
+      background: var(--bg);
+    }
+    .data-table tbody td.name-cell {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+    }
+    .data-table tbody td.num-cell {
+      text-align: right;
+      padding: 4px 10px;
+    }
+    .data-table tbody td.result-cell {
+      text-align: right;
+      padding: 4px 10px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .data-table tbody td.artist-cell {
+      padding: 4px 10px;
+    }
+
+    /* ── 數字輸入框（花費）── */
+    .num-input { width: 80px; } /* 覆蓋共用預設值 */
+
+    /* ── 文字輸入框（等級）── */
+    /* 已移除等級欄位 */
+
+    /* ── Top 4 高亮 ── */
+    tr.row-top4 td                { background: #FFFBEB !important; }
+    tr.row-top4 td.seq-cell       { background: #FEF3C7 !important; border-left: 3px solid #F59E0B; }
+    tr.row-top4 .num-input        { background: var(--bg); }
+
+    /* ── 佔位列（—）── */
+    tr.row-placeholder td         { opacity: 0.35; }
+    tr.row-placeholder td.seq-cell{ background: var(--bg); }
+
+    /* ── 藝人徽章 ── */
+    .talent-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 26px;
+    }
+
+    /* ── 說明行 ── */
+    /* (共用樣式 .hint-row / .hint-dot 已收入 shared/style.css) */
+
+    /* ── 隱藏藝人欄 ── */
+    #dataTable.hide-artists .col-artists { display: none; }
+
+    @media (max-width: 700px) {
+      #dataTable .col-artists { display: none !important; }
+    }
+
+    /* ── 操作區塊 ── */
+    .topn-select {
+      border: 1.5px solid var(--border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      background: var(--bg);
+      padding: 2px 6px;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .topn-select:focus { border-color: var(--blue); }
+  </style>
+</head>
+<body>
+
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <div class="tool-page-header">
+    <h1>🎭 農田藝人鍛鍊</h1>
+    <p>輸入各項目的花費，系統依「設定中心」藝人擁有狀態計算效益（花費 ÷ 擁有藝人數），自動標示效益最佳前 N 名（可設定 1～5）</p>
+  </div>
+
+  <!-- 使用說明 -->
+  <div class="guide-card">
+    <div class="guide-header" onclick="toggleGuide()">
+      <span>📖 使用說明</span>
+      <span class="guide-toggle" id="guideToggle">▼ 展開</span>
+    </div>
+    <div class="guide-body" id="guideBody" style="display:none">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>填寫花費</strong><br>
+            依照遊戲中各項目目前的花費，填入對應欄位。資料自動存入本機，重新開啟仍保留。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>設定藝人狀態</strong><br>
+            開啟「⚙️ 設定藝人」，在設定中心標記各藝人是否擁有。設定後本頁面的藝人數與效益欄位即時更新。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>解讀效益與高亮</strong><br>
+            效益 = 花費 ÷ 擁有藝人數，數字越小代表越划算（越優先投入）。
+            <span style="display:inline-block;padding:1px 8px;border-radius:4px;background:#FFFBEB;color:#92400E;font-size:11px;font-weight:600;border-left:3px solid #F59E0B">黃底</span>
+            標示效益最佳前 N 名（可在上方「顯示效益前」設定 1～5 名，藝人數為 0 時不計算）。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>藝人標籤顏色</strong><br>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#FEF9C3;color:#92400E;font-size:11px;font-weight:600">珍貴</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#F3E8FF;color:#7E22CE;font-size:11px;font-weight:600">卓越</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#DBEAFE;color:#1D4ED8;font-size:11px;font-weight:600">優秀</span>
+            <span style="display:inline-block;padding:1px 6px;border-radius:4px;background:#F3F4F6;color:#6B7280;font-size:11px;font-weight:600">未擁有</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作區塊 -->
+  <div class="upload-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <span class="section-title">工具區</span>
+      <label style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--sub);white-space:nowrap;cursor:default">
+        顯示效益前
+        <select id="topNSelect" class="topn-select" onchange="setTopN(this.value)">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+        名
+      </label>
+    </div>
+    <div class="clear-action-row" style="margin-top:0;padding-top:12px">
+      <button class="clear-data-btn toggle" id="btnToggleArtist" onclick="toggleArtistCol()">隱藏藝人欄</button>
+      <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️ 設定藝人</a>
+      <button class="clear-data-btn" onclick="clearInputState()">清除數值</button>
+    </div>
+  </div>
+
+  <!-- 輸入表格 -->
+  <div class="input-card">
+    <div class="input-card-header">
+      <span>各項目數值輸入(價格越低越優先)</span>
+      <span style="font-size:12px;font-weight:400;color:var(--sub)">填寫後即時計算</span>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table id="dataTable" class="data-table">
+        <colgroup>
+          <col style="width:50px">          <!-- 序號 -->
+          <col style="width:110px">         <!-- 項目 -->
+          <col style="width:90px">          <!-- 花費 -->
+          <col style="width:60px">          <!-- 藝人數 -->
+          <col style="width:72px">          <!-- 效益 -->
+          <col class="col-artists">         <!-- 相關藝人 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>序號</th>
+            <th>項目</th>
+            <th class="num">花費</th>
+            <th class="num">藝人數</th>
+            <th class="num">效益</th>
+            <th class="col-artists">相關藝人</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="hint-row">
+      <span class="hint-dot" style="background:#FFFBEB;border:1px solid #F59E0B"></span>
+      <span>效益最佳前 <span id="hintTopN">4</span> 名</span>
+      <span style="margin-left:12px;color:#aaa">｜ 花費為空白時不納入計算 ｜ 藝人數為 0 時不計算效益</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="../data/settings-store.js"></script>
+<script src="../data/farm-artist-data.js"></script>
+<script>
+/* ── 藝人徽章 HTML（類似 renderTalentBadgesHtml，但用藝人資料）── */
+function renderArtistBadgesHtml(artistNames) {
+  if (!artistNames || artistNames.length === 0) return '';
+  const infos = artistNames.map(n => getArtistInfo(n)).filter(Boolean);
+  infos.sort((a, b) => {
+    if (a.owned !== b.owned) return a.owned ? -1 : 1;
+    return (QUALITY_ORDER[a.quality] ?? 99) - (QUALITY_ORDER[b.quality] ?? 99);
+  });
+  return infos.map(a => {
+    const cls = a.owned ? (QUALITY_CSS[a.quality] || 'tq-none') : 'tq-none';
+    return `<span class="talent-badge ${cls}">${a.name}</span>`;
+  }).join('');
+}
+
+/* ── 狀態管理 ── */
+const LS_KEY      = 'fa_row_state';
+const LS_TOPN_KEY = 'fa_topn';
+
+function loadState() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_KEY));
+    if (Array.isArray(saved) && saved.length === ARTIST_ROWS.length) return saved;
+  } catch {}
+  return ARTIST_ROWS.map(() => ({ cost: '' }));
+}
+
+function saveState() {
+  localStorage.setItem(LS_KEY, JSON.stringify(state));
+}
+
+const state = loadState();
+let topN = Math.min(5, Math.max(1, parseInt(localStorage.getItem(LS_TOPN_KEY) || '4', 10)));
+
+/* ── 建立表格 ── */
+function buildTable() {
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+
+  ARTIST_ROWS.forEach((row, i) => {
+    const isPlaceholder = row.name === '—';
+    const tr = document.createElement('tr');
+    tr.id = `row-${i}`;
+    if (isPlaceholder) tr.classList.add('row-placeholder');
+
+    // 序號
+    const tdSeq = document.createElement('td');
+    tdSeq.className = 'seq-cell';
+    tdSeq.textContent = row.seq;
+    tr.appendChild(tdSeq);
+
+    // 項目
+    const tdName = document.createElement('td');
+    tdName.className = 'name-cell';
+    tdName.textContent = row.name;
+    tr.appendChild(tdName);
+
+    // 花費（影響效益計算）
+    const tdCost = document.createElement('td');
+    tdCost.className = 'num-cell';
+    if (!isPlaceholder) {
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.className = 'num-input';
+      inp.min = '0';
+      inp.value = state[i].cost;
+      inp.addEventListener('input', () => {
+        state[i].cost = inp.value;
+        saveState();
+        recalc();
+      });
+      tdCost.appendChild(inp);
+    }
+    tr.appendChild(tdCost);
+
+    // 藝人數（自動，來自設定中心）
+    const tdCnt = document.createElement('td');
+    tdCnt.className = 'result-cell';
+    tdCnt.id = `cnt-${i}`;
+    tr.appendChild(tdCnt);
+
+    // 效益（自動 = 花費 ÷ 藝人數）
+    const tdEff = document.createElement('td');
+    tdEff.className = 'result-cell';
+    tdEff.id = `eff-${i}`;
+    tr.appendChild(tdEff);
+
+    // 相關藝人
+    const tdArtists = document.createElement('td');
+    tdArtists.className = 'artist-cell col-artists';
+    tdArtists.id = `artists-${i}`;
+    tdArtists.innerHTML = `<div class="talent-badges">${renderArtistBadgesHtml(row.artists)}</div>`;
+    tr.appendChild(tdArtists);
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── 重新計算效益、藝人數、Top-4 高亮 ── */
+function recalc() {
+  const efficiencies = ARTIST_ROWS.map((row, i) => {
+    // 計算擁有藝人數
+    const ownedCnt = row.artists.filter(name => {
+      const info = getArtistInfo(name);
+      return info && info.owned;
+    }).length;
+
+    const cntEl = document.getElementById(`cnt-${i}`);
+    if (cntEl) {
+      cntEl.textContent = row.artists.length > 0 ? String(ownedCnt) : '';
+    }
+
+    // 計算效益
+    const cost = parseFloat(state[i].cost);
+    if (isNaN(cost) || state[i].cost === '' || ownedCnt === 0) return null;
+    return cost / ownedCnt;
+  });
+
+  // 更新效益欄
+  efficiencies.forEach((eff, i) => {
+    const el = document.getElementById(`eff-${i}`);
+    if (el) el.textContent = eff === null ? '' : eff.toFixed(1);
+  });
+
+  // 找第 topN 小的效益值作為閾值
+  const valid = efficiencies.filter(e => e !== null).slice().sort((a, b) => a - b);
+  const threshold = valid.length > 0 ? valid[Math.min(topN, valid.length) - 1] : null;
+
+  // 套用 / 移除 Top-N 高亮
+  efficiencies.forEach((eff, i) => {
+    const rowEl = document.getElementById(`row-${i}`);
+    if (!rowEl) return;
+    const isTopN = eff !== null && threshold !== null && eff <= threshold;
+    rowEl.classList.toggle('row-top4', isTopN);
+  });
+}
+
+/* ── 切換藝人欄顯示 ── */
+window.toggleArtistCol = function () {
+  const table = document.getElementById('dataTable');
+  const btn   = document.getElementById('btnToggleArtist');
+  const hidden = table.classList.toggle('hide-artists');
+  btn.textContent = hidden ? '顯示藝人欄' : '隱藏藝人欄';
+};
+
+/* ── Top-N 切換 ── */
+window.setTopN = function (val) {
+  topN = Math.min(5, Math.max(1, parseInt(val, 10)));
+  localStorage.setItem(LS_TOPN_KEY, String(topN));
+  const hintEl = document.getElementById('hintTopN');
+  if (hintEl) hintEl.textContent = topN;
+  recalc();
+};
+
+/* ── 清除輸入 ── */
+window.clearInputState = function () {
+  if (!confirm('確定要清除所有花費的輸入資料嗎？')) return;
+  state.forEach(s => { s.cost = ''; });
+  saveState();
+  buildTable();
+  recalc();
+};
+
+function toggleGuide() {
+  const body   = document.getElementById('guideBody');
+  const toggle = document.getElementById('guideToggle');
+  const open   = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  toggle.textContent = open ? '▲ 收合' : '▼ 展開';
+}
+
+// 初始化
+buildTable();
+recalc();
+
+// 同步 select 與 hint 至儲存的 topN
+const _sel = document.getElementById('topNSelect');
+if (_sel) _sel.value = String(topN);
+const _hint = document.getElementById('hintTopN');
+if (_hint) _hint.textContent = topN;
+</script>
+</body>
+</html>

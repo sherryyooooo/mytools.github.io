@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ★ 改成工具名稱 -->
+  <title>[工具名稱]</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* =====================================================
+     * 僅放「本頁專用」樣式；shared/style.css 已涵蓋的
+     * 共用 class 不需在此重複定義。
+     *
+     * ── 共用 class 速查（直接使用，無需補 CSS）─────────
+     *
+     * 【版面】
+     *   .page-container         最外層 wrapper（max-width 1500px + padding）
+     *   .tool-page-header       標題區（h1 + p）
+     *
+     * 【卡片容器】
+     *   .upload-card            白底卡片（padding:20px，圓角/陰影）
+     *   .input-card             白底卡片，有 border-bottom 標題分隔
+     *   .input-card-header      搭配 .input-card 使用的標題列
+     *   .report-card            輸出卡片（padding:24px）
+     *
+     * 【輸入元件】
+     *   .drop-zone              拖曳上傳區（含 dragover / has-file 狀態）
+     *   .num-input              右對齊數字輸入框（寬度 72px、灰底、無上下箭頭）
+     *                           → 本頁可覆寫 width，不要重複定義展開樣式
+     *   [注意] type="number" 的上下箭頭已全域隐藏（style.css 統一處理）
+     *          不要自行覆寫 -webkit-appearance。
+     *
+     * 【按鈕】
+     *   .action-btn / .generate-btn  主要執行按鈕（藍色）
+     *   .match-btn              橘色確認執行按鈕（寬 100%）
+     *   .clear-action-row       按鈕列容器（flex，有 border-top）
+     *   .clear-data-btn         清除/操作按鈕（藍紫色，.danger 橘色，.toggle 灰色）
+     *
+     * 【輸出區】
+     *   .report-area            輸出區（預設隱藏，加 .visible 後 fadeIn 動畫）
+     *   .stat-row / .stat-box   摘要數字列
+     *   table.report            資料表格（含 .num 右對齊、.total 合計列）
+     *   .bar-cell / .bar        長條圖欄位
+     *   .detail-scroll          可捲動區域（max-height:520px）
+     *   .report-footer          卡片底部備註文字
+     *
+     * 【說明卡片】
+     *   .guide-card             使用說明折疊卡片容器
+     *   .guide-header           可點擊的標題列
+     *   .guide-steps            步驟列表容器
+     *   .guide-step             單一步驟（step-num + step-text）
+     *
+     * 【標籤 / 徽章】
+     *   .talent-badge           人才/藝人品質徽章（需搭配 .tq-* 顏色 class）
+     *   .tq-precious            金色（珍貴）
+     *   .tq-superior            紫色（優質）
+     *   .tq-good                藍色（良好）
+     *   .tq-none                灰色（無）
+     *   .dot                    圓形色點（inline，搭配顏色 background）
+     *   .section-title          卡片內區塊標題（15px bold）
+     *
+     * 【說明列（卡片底部）】
+     *   .hint-row               說明文字列（flex，border-top，小字）
+     *   .hint-dot               說明列用的圓形色點
+     *
+     * 【代辦清單（榜單系列）】
+     *   .todo-progress-badge    整體進度徽章（右上角顯示 n/total，.all-done 全完成樣式）
+     *   .todo-grid              代辦清單格線容器（auto-fill minmax 220px）
+     *   .todo-group             群組卡片（.all-done 全組完成轉綠底）
+     *   .todo-group.todo-single standalone 單項大卡（無群組標題列）
+     *   .todo-group-header      群組標題列（用 inline style 設各群組背景/文字色）
+     *   .group-prog             群組進度小標籤
+     *   .todo-items-body        項目列表容器
+     *   .todo-item              單一勾選列（.is-checked 已勾選；點擊切換）
+     *   .check-box              原生 input[type=checkbox]（accent-color:var(--blue)）
+     *   .check-label            項目文字（已勾選時加刪除線）
+     *
+     * 【CSS 變數（:root）】
+     *   --bg --card --text --sub --border
+     *   --blue --green --orange --red --purple --cyan --pink --yellow
+     *   --radius (14px)  --shadow
+     * ===================================================== */
+
+    /* ── 本頁自訂顏色變數（選填）── */
+    /* :root {
+      --accent: #007AFF;
+    } */
+
+    /* ── 本頁專用樣式 ── */
+
+    @media (max-width: 600px) {
+      /* 手機斷點補充 */
+    }
+  </style>
+</head>
+<body>
+
+<!-- ★ 共用 Header（含返回按鈕），不需修改 -->
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <!-- =====================================================
+       ① 工具標題區
+       ===================================================== -->
+  <div class="tool-page-header">
+    <!-- ★ 改成對應 emoji 與工具名稱 -->
+    <h1>🔧 [工具名稱]</h1>
+    <!-- ★ 一行功能說明 -->
+    <p>[工具的功能說明，一行即可]</p>
+  </div>
+
+
+  <!-- =====================================================
+       ② 使用說明（可選）
+       引用 shared/style.css 的 .guide-card 系列 class，
+       不需額外補 CSS，直接複製此區塊即可。
+       不需要使用說明時整個 <div class="guide-card"> 刪除。
+       ===================================================== -->
+  <div class="guide-card">
+    <div class="guide-header" onclick="toggleGuide()">
+      <span>📖 使用說明</span>
+      <span class="guide-toggle" id="guideToggle">▼ 展開</span>
+    </div>
+    <div class="guide-body" id="guideBody" style="display:none">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>[步驟標題]</strong><br>[步驟說明]</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>[步驟標題]</strong><br>[步驟說明]</div>
+        </div>
+        <!-- ★ 依需求增減 .guide-step 區塊 -->
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       ③ 輸入區 — 選擇下方 A、B 或 C 其中一種，其餘可刪除。
+       ===================================================== -->
+
+  <!-- ── 樣式 A：文字貼上 / 手動輸入 ── -->
+  <div class="upload-card">
+    <textarea id="inputText"
+      placeholder="★ 輸入提示文字"
+      rows="6"
+      style="width:100%;padding:14px;font-size:14px;font-family:inherit;
+             border:1.5px solid var(--border);border-radius:12px;
+             resize:vertical;outline:none;line-height:1.6;color:var(--text);"
+      oninput="document.getElementById('actionBtn').disabled = !this.value.trim()">
+    </textarea>
+    <button class="action-btn" id="actionBtn" disabled onclick="handleAction()">
+      ★ 執行
+    </button>
+  </div>
+
+  <!-- ── 樣式 B：拖曳 / 點擊上傳檔案 ── -->
+  <!--
+  <div class="upload-card">
+    <div class="drop-zone" id="dropZone">
+      <input type="file" accept="★副檔名" id="fileInput" onchange="onFileChange(this)">
+      <div class="icon">📁</div>
+      <div class="label">拖曳檔案到此，或點擊選取</div>
+      <div class="hint">支援 ★副檔名 格式</div>
+      <div class="file-name" id="fileName" style="display:none"></div>
+    </div>
+    <button class="action-btn" id="actionBtn" disabled onclick="handleAction()">
+      ★ 執行
+    </button>
+  </div>
+  -->
+
+  <!-- ── 樣式 C：有標題列的輸入卡片（農田系列工具風格）── -->
+  <!--
+  <div class="input-card">
+    <div class="input-card-header">
+      📋 ★ 卡片標題
+    </div>
+    <div style="padding:16px 20px">
+      <!-- 卡片內容：表格、輸入欄位等 -->
+    </div>
+    <div class="clear-action-row">
+      <button class="clear-data-btn" onclick="clearData()">清除數據</button>
+      <button class="clear-data-btn danger" onclick="resetAll()">全部重置</button>
+    </div>
+    <div class="hint-row">
+      <span class="hint-dot" style="background:#E65100"></span>
+      ★ 說明文字
+    </div>
+  </div>
+  -->
+
+
+  <!-- =====================================================
+       ④ 輸出區
+       預設隱藏；JS 執行完呼叫 showOutput() 後加 .visible 顯示。
+       內部結構可自由搭配 .stat-row / .report-card 等 class。
+       ===================================================== -->
+  <div class="report-area" id="outputArea"></div>
+
+</div><!-- end .page-container -->
+
+
+<script>
+/* =====================================================
+ * [工具名稱] — 主邏輯
+ *
+ * 建議結構：
+ *   1. DOM 參照
+ *   2. 事件綁定（檔案上傳 / 拖曳，若用樣式 B）
+ *   3. handleAction()  — 主流程
+ *   4. processData()   — 純資料處理（不操作 DOM）
+ *   5. render()        — 純渲染（不做邏輯計算）
+ *   6. 其他輔助函式
+ * ===================================================== */
+
+// ── 1. DOM 參照 ─────────────────────────────────────
+const inputEl   = document.getElementById('inputText');
+const actionBtn = document.getElementById('actionBtn');
+const outputArea = document.getElementById('outputArea');
+
+// ── 2. 事件綁定（樣式 B 拖曳上傳，樣式 A 可刪除此區塊）──
+/*
+const dropZone = document.getElementById('dropZone');
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) loadFile(file);
+});
+
+function onFileChange(input) {
+  if (input.files[0]) loadFile(input.files[0]);
+}
+
+function loadFile(file) {
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileName').style.display = 'block';
+  dropZone.classList.add('has-file');
+  actionBtn.disabled = false;
+  // 讀取內容範例（文字檔）：
+  // const reader = new FileReader();
+  // reader.onload = e => { window._fileContent = e.target.result; };
+  // reader.readAsText(file, 'UTF-8');
+}
+*/
+
+// ── 3. 主流程 ────────────────────────────────────────
+function handleAction() {
+  const raw = inputEl?.value.trim() ?? window._fileContent;
+  if (!raw) return;
+
+  actionBtn.disabled = true;
+  actionBtn.textContent = '處理中…';
+
+  try {
+    const result = processData(raw);
+    render(result);
+  } catch (err) {
+    alert(`❌ 處理失敗：${err.message}`);
+  } finally {
+    actionBtn.disabled = false;
+    actionBtn.textContent = '★ 執行';
+  }
+}
+
+// ── 4. 資料處理（純函式，不操作 DOM）─────────────────
+function processData(input) {
+  // 解析 / 轉換邏輯
+  // return { ... };
+  return {};
+}
+
+// ── 5. 渲染輸出 ──────────────────────────────────────
+function render(data) {
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  outputArea.innerHTML = `
+    <!-- 摘要數字列範例 -->
+    <div class="stat-row">
+      <div class="stat-box">
+        <div class="value">${Object.keys(data).length}</div>
+        <div class="label">★ 說明文字</div>
+      </div>
+    </div>
+
+    <!-- 資料卡片範例 -->
+    <div class="report-card">
+      <h2>★ 區塊標題</h2>
+      <p style="font-size:13px;color:var(--sub)">產生時間：${timeStr}</p>
+      <!-- 在此放表格、列表或其他內容 -->
+    </div>
+  `;
+
+  showOutput();
+}
+
+// ── 6. 輔助函式 ──────────────────────────────────────
+function showOutput() {
+  outputArea.classList.add('visible');
+  setTimeout(() => outputArea.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+}
+
+function toggleGuide() {
+  const body   = document.getElementById('guideBody');
+  const toggle = document.getElementById('guideToggle');
+  const open   = body.style.display === 'none';
+  body.style.display  = open ? 'block' : 'none';
+  toggle.textContent  = open ? '▲ 收合' : '▼ 展開';
+}
+</script>
+
+<!-- =====================================================
+  註冊到首頁 (index.html) 的步驟：
+
+  在 index.html 的 categories 陣列對應類別的 tools 中新增：
+  {
+    enabled: true,
+    icon: '★',           // emoji 圖示
+    iconBg: '#FFF3E0',   // 圖示背景色（建議用淺色）
+    title: '[工具名稱]',
+    desc:  '[首頁卡片說明，1-2 行]',
+    href:  'tools/[檔名].html',
+  },
+===================================================== -->
+</body>
+</html>

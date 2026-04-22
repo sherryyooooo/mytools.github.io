@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>收入榜・代辦清單</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── 紀錄區佈局 ── */
+    .record-grid {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sub);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 5px;
+    }
+
+    .record-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .record-input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      transition: border-color 0.15s;
+      box-sizing: border-box;
+      -moz-appearance: textfield;
+    }
+
+    .record-input::-webkit-outer-spin-button,
+    .record-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .record-input:focus {
+      border-color: var(--blue);
+    }
+
+    .date-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .date-row .record-input {
+      flex: 1;
+    }
+
+    .today-btn {
+      flex-shrink: 0;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .today-btn:hover {
+      background: #EFF6FF;
+      border-color: var(--blue);
+    }
+
+    .notes-area {
+      width: 100%;
+      min-height: 110px;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text);
+      background: var(--bg);
+      outline: none;
+      resize: vertical;
+      line-height: 1.7;
+      transition: border-color 0.15s;
+      box-sizing: border-box;
+    }
+
+    .notes-area:focus {
+      border-color: var(--blue);
+    }
+
+    .record-sep {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 0;
+    }
+
+    /* ── 操作按鈕列 ── */
+    .action-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    @media (max-width: 640px) {
+      .record-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <script src="../shared/header.js"></script>
+
+  <div class="page-container">
+
+    <div class="tool-page-header">
+      <h1>💰 收入榜</h1>
+      <p>記錄每次收入榜期間的最高收入數值，並逐一確認各增益項目的代辦清單，確保每個環節不遺漏</p>
+    </div>
+
+    <!-- 使用說明 -->
+    <div class="guide-card">
+      <div class="guide-header" onclick="toggleGuide()">
+        <span>📖 使用說明</span>
+        <span class="guide-toggle" id="guideToggle">▼ 展開</span>
+      </div>
+      <div class="guide-body" id="guideBody" style="display:none">
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="step-num">1</div>
+            <div class="step-text"><strong>填寫榜單紀錄</strong><br>
+              輸入本次記錄日期（可點「今日」快速帶入）與記錄最高成績數值，右側可填寫當期備忘文字。資料自動存入本機。</div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">2</div>
+            <div class="step-text"><strong>逐一勾選代辦事項</strong><br>
+              依分類勾選已完成項目。每組卡片右上角顯示進度，全組完成後背景轉綠；頁面右上角顯示整體進度。</div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">3</div>
+            <div class="step-text"><strong>匯出 / 匯入備份</strong><br>
+              備份與還原請至「⚙️ 設定中心 → 資料管理」統一操作，收入榜資料會一併包含在全站備份中。</div>
+          </div>
+          <div class="guide-step">
+            <div class="step-num">4</div>
+            <div class="step-text"><strong>開始新榜單</strong><br>
+              新一期開始時點「清空代辦勾選」，重置所有項目的勾選狀態；日期、最高收入數值與備忘文字不受影響。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 紀錄區塊 -->
+    <div class="input-card">
+      <div class="input-card-header">
+        <span>📔 榜單紀錄</span>
+        <span style="font-size:12px;font-weight:400;color:var(--sub)">自動儲存</span>
+      </div>
+      <div style="padding:16px 20px">
+        <div class="record-grid">
+
+          <!-- 左：日期 + 收入 -->
+          <div class="record-fields">
+            <div>
+              <span class="field-label">記錄日期</span>
+              <div class="date-row">
+                <input type="date" id="recDate" class="record-input" oninput="saveRecord()">
+                <button class="today-btn" onclick="setToday()">今日</button>
+              </div>
+            </div>
+            <div>
+              <span class="field-label">記錄最高收入</span>
+              <input type="number" id="recScore" class="record-input" placeholder="輸入數值" min="0" oninput="saveRecord()">
+            </div>
+          </div>
+
+          <!-- 右：備忘 -->
+          <div>
+            <span class="field-label">備忘文字</span>
+            <textarea id="recNotes" class="notes-area" placeholder="本次榜單備忘事項…" oninput="saveRecord()"></textarea>
+          </div>
+
+        </div>
+      </div>
+      <hr class="record-sep">
+      <div style="padding:12px 20px">
+        <div class="action-row">
+          <button class="clear-data-btn danger" onclick="clearTodos()">✕ 清空代辦勾選</button>
+          <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️
+            資料管理（匯出/匯入）</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 代辦清單 -->
+    <div class="input-card">
+      <div class="input-card-header">
+        <span>✅ 代辦清單</span>
+        <span class="todo-progress-badge" id="overallBadge">0 / 0</span>
+      </div>
+      <div class="todo-grid" id="todoGrid"></div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ── 代辦項目定義 ─────────────────────────────────────
+     * items: null  → standalone 單項卡（無子項）
+     * items: [...] → 群組卡（有彩色標題列）
+     * 參考色組
+     * { name: 'Red', bg: '#FEF2F2', text: '#B91C1C' },
+     * { name: 'Rose', bg: '#FFF1F2', text: '#BE123C' },
+     * { name: 'Orange', bg: '#FFF7ED', text: '#C2410C' },
+     * { name: 'Amber', bg: '#FFFBEB', text: '#B45309' },
+     * { name: 'Yellow', bg: '#FEFCE8', text: '#A16207' },
+     * { name: 'Lime', bg: '#F7FEE7', text: '#4D7C0F' },
+     * { name: 'Green', bg: '#F0FDF4', text: '#15803D' },
+     * { name: 'Teal', bg: '#F0FDFA', text: '#0F766E' },
+     * { name: 'Sky', bg: '#F0F9FF', text: '#0369A1' },
+     * { name: 'Blue', bg: '#EFF6FF', text: '#1D4ED8' },
+     * { name: 'Indigo', bg: '#EEF2FF', text: '#4338CA' },
+     * { name: 'Violet', bg: '#F5F3FF', text: '#6D28D9' }
+     * ─────────────────────────────────────────────────── */
+    const TODO_GROUPS = [
+      {
+        key: 'work', label: '人才上班',
+        color: { name: 'Red', bg: '#FEF2F2', text: '#B91C1C' },
+        items: [
+          { key: 'work_shop', label: '各店鋪-員工' },
+          { key: 'work_board', label: '董事會-董事' },
+          { key: 'work_guild', label: '公會-居委會' },
+        ],
+      },
+      {
+        key: 'medal', label: '勳章升級',
+        color: { name: 'Rose', bg: '#FFF1F2', text: '#BE123C' },
+        items: [
+          { key: 'm_home', label: '自宅' },
+          { key: 'm_bath', label: '澡堂' },
+          { key: 'm_video', label: '錄像廳' },
+          { key: 'm_dance', label: '歌舞廳' },
+          { key: 'm_realestate', label: '房地產' },
+          { key: 'm_voice', label: '超級唱聲' },
+        ],
+      },
+      {
+        key: 'museum', label: '礦場-博物館',
+        color: { name: 'Orange', bg: '#FFF7ED', text: '#C2410C' },
+        items: [
+          { key: 'mus_gallery', label: '展品圖鑑' },
+          { key: 'mus_level', label: '博物館等級' },
+        ],
+      },
+      {
+        key: 'talent_skill', label: '人才',
+        color: { name: 'Amber', bg: '#FFFBEB', text: '#B45309' },
+        items: [
+          { key: 't_calc', label: '技能-委派技能(計算機)' },
+          { key: 't_shop', label: '副業-店鋪打理(培訓經驗)' },
+        ],
+      },
+      {
+        key: 'collection', label: '圖鑑提升',
+        color: { name: 'Yellow', bg: '#FEFCE8', text: '#A16207' },
+        items: [
+          { key: 'col_video', label: '錄像廳-影片' },
+          { key: 'col_fish', label: '魚攤-賣魚圖鑑' },
+        ],
+      },
+      {
+        key: 'artist_ad', label: '藝人',
+        color: { name: 'Lime', bg: '#F7FEE7', text: '#4D7C0F' },
+        items: [
+          { key: 'a_industry', label: '藝人-代言-產業' },
+        ],
+      },
+      {
+        key: 'shop_manage', label: '店鋪',
+        color: { name: 'Green', bg: '#F0FDF4', text: '#15803D' },
+        items: [
+          { key: 's_upgrade', label: '升級' },
+          { key: 's_expand', label: '拓展(致富經)' },
+          { key: 's_bonus', label: '業務加成' },
+          { key: 's_new', label: '開新店鋪' },
+        ],
+      },
+      {
+        key: 'farm_research', label: '農田',
+        color: { name: 'Teal', bg: '#F0FDFA', text: '#0F766E' },
+        items: [
+          { key: 'f_research', label: '合作社-店鋪研究' },
+          { key: 'f_improve', label: '科學種值-改良(致富經)' },
+        ],
+      },
+      {
+        key: 'bag_item', label: '背包',
+        color: { name: 'Sky', bg: '#F0F9FF', text: '#0369A1' },
+        items: [
+          { key: 'b_shop_up', label: '店鋪升級' },
+          { key: 'b_min_card', label: '分鐘卡(滿加成使用)' },
+        ],
+      },
+      {
+        key: 'others', label: '其他',
+        color: { name: 'Blue', bg: '#EFF6FF', text: '#1D4ED8' },
+        items: [
+          { key: 'o_stage', label: '關卡-推關-店鋪解鎖' },
+          { key: 'o_alley', label: '午夜胡同-設施' },
+          { key: 'o_rank', label: '開心52-提升名次' },
+          { key: 'o_furniture', label: '自宅-家具' },
+          { key: 'o_collab', label: '作品合作' },
+        ],
+      },
+      {
+        key: 'mini_games', label: '店鋪小遊戲',
+        color: { name: 'Indigo', bg: '#EEF2FF', text: '#4338CA' },
+        items: [
+          { key: 'g_thunder', label: '雷霆' },
+          { key: 'g_racing', label: '賽車' },
+          { key: 'g_beach', label: '搶灘防衛' },
+          { key: 'g_mines', label: '掃雷' },
+          { key: 'g_pipe', label: '修水管' },
+          { key: 'g_barber', label: '理髮' },
+          { key: 'g_dance', label: '跳舞' },
+          { key: 'g_health', label: '保健' },
+          { key: 'g_meal', label: '做餐' },
+        ],
+      },
+    ];
+
+    /* ── 儲存 key ── */
+    const LS_KEY = 'ranking_todo_income_v1';
+
+    /* ── 預設狀態 ── */
+    function defaultState() {
+      const checks = {};
+      TODO_GROUPS.forEach(g => {
+        if (!g.items) {
+          checks[g.key] = false;
+        } else {
+          g.items.forEach(item => { checks[`${g.key}_${item.key}`] = false; });
+        }
+      });
+      return { date: '', score: '', notes: '', checks };
+    }
+
+    /* ── 載入狀態 ── */
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(LS_KEY);
+        if (raw) {
+          const saved = JSON.parse(raw);
+          const def = defaultState();
+          return {
+            date: saved.date ?? '',
+            score: saved.score ?? '',
+            notes: saved.notes ?? '',
+            checks: { ...def.checks, ...(saved.checks ?? {}) },
+          };
+        }
+      } catch { }
+      return defaultState();
+    }
+
+    function persistState() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+    const state = loadState();
+
+    /* ── 紀錄區 ── */
+    function restoreRecord() {
+      document.getElementById('recDate').value = state.date;
+      document.getElementById('recScore').value = state.score;
+      document.getElementById('recNotes').value = state.notes;
+    }
+
+    window.saveRecord = function () {
+      state.date = document.getElementById('recDate').value;
+      state.score = document.getElementById('recScore').value;
+      state.notes = document.getElementById('recNotes').value;
+      persistState();
+    };
+
+    window.setToday = function () {
+      const t = new Date();
+      document.getElementById('recDate').value =
+        `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
+      saveRecord();
+    };
+
+    window.clearTodos = function () {
+      if (!confirm('確定要清空所有勾選狀態嗎？')) return;
+      state.checks = defaultState().checks;
+      persistState();
+      renderTodo();
+    };
+
+    /* ── 代辦清單渲染 ── */
+    function renderTodo() {
+      const grid = document.getElementById('todoGrid');
+      grid.innerHTML = '';
+      let totalDone = 0, totalAll = 0;
+
+      TODO_GROUPS.forEach(group => {
+        const el = document.createElement('div');
+        const isStandalone = !group.items;
+
+        if (isStandalone) {
+          totalAll++;
+          const checked = !!state.checks[group.key];
+          if (checked) totalDone++;
+          el.className = `todo-group todo-single${checked ? ' all-done' : ''}`;
+          el.innerHTML = `
+        <div class="todo-items-body">
+          <label class="todo-item${checked ? ' is-checked' : ''}" data-key="${group.key}">
+            <input type="checkbox" class="check-box"${checked ? ' checked' : ''}>
+            
+            <span class="check-label">${group.label}</span>
+          </label>
+        </div>`;
+        } else {
+          const done = group.items.filter(item => !!state.checks[`${group.key}_${item.key}`]).length;
+          const total = group.items.length;
+          totalDone += done;
+          totalAll += total;
+          const allDone = done === total;
+
+          el.className = `todo-group${allDone ? ' all-done' : ''}`;
+          const itemsHtml = group.items.map(item => {
+            const key = `${group.key}_${item.key}`;
+            const checked = !!state.checks[key];
+            return `<label class="todo-item${checked ? ' is-checked' : ''}" data-key="${key}">
+          <input type="checkbox" class="check-box"${checked ? ' checked' : ''}>
+          <span class="check-label">${item.label}</span>
+        </label>`;
+          }).join('');
+
+          el.innerHTML = `
+        <div class="todo-group-header"
+             style="background:${group.color.bg};color:${group.color.text}">
+          <span>${group.label}</span>
+          <span class="group-prog">${done} / ${total}</span>
+        </div>
+        <div class="todo-items-body">${itemsHtml}</div>`;
+        }
+
+        el.querySelectorAll('.check-box').forEach(cb => {
+          cb.addEventListener('change', () => {
+            state.checks[cb.closest('[data-key]').dataset.key] = cb.checked;
+            persistState();
+            renderTodo();
+          });
+        });
+
+        grid.appendChild(el);
+      });
+
+      const badge = document.getElementById('overallBadge');
+      const allDone = totalDone === totalAll;
+      badge.textContent = allDone ? '✓ 全部完成！' : `${totalDone} / ${totalAll}`;
+      badge.classList.toggle('all-done', allDone);
+    }
+
+    function toggleGuide() {
+      const body = document.getElementById('guideBody');
+      const toggle = document.getElementById('guideToggle');
+      const open = body.style.display === 'none';
+      body.style.display = open ? 'block' : 'none';
+      toggle.textContent = open ? '▲ 收合' : '▼ 展開';
+    }
+
+    restoreRecord();
+    renderTodo();
+  </script>
+</body>
+
+</html>
