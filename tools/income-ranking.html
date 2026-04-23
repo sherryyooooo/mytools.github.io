@@ -15,6 +15,12 @@
       align-items: start;
     }
 
+    .record-grid-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
     .field-label {
       display: block;
       font-size: 11px;
@@ -174,7 +180,7 @@
     <!-- 紀錄區塊 -->
     <div class="input-card">
       <div class="input-card-header">
-        <span>📔 榜單紀錄</span>
+        <span>榜單紀錄</span>
         <span style="font-size:12px;font-weight:400;color:var(--sub)">自動儲存</span>
       </div>
       <div style="padding:16px 20px">
@@ -195,6 +201,8 @@
             </div>
           </div>
 
+
+
           <!-- 右：備忘 -->
           <div>
             <span class="field-label">備忘文字</span>
@@ -203,6 +211,36 @@
 
         </div>
       </div>
+
+      <!-- 未加成收入 -->
+      <hr class="record-sep">
+      <div style="padding:16px 20px">
+        <div class="record-grid-row">
+
+          <div>
+            <span class="field-label">店鋪總收入</span>
+            <input type="number" id="shopIncome" class="record-input" min="0" oninput="updateIncome()">
+          </div>
+
+          <div>
+            <span class="field-label">作品總收入</span>
+            <input type="number" id="workIncome" class="record-input" min="0" oninput="updateIncome()">
+          </div>
+
+          <div>
+            <span class="field-label">關卡收入</span>
+            <input type="number" id="stageIncome" class="record-input" min="0" oninput="updateIncome()">
+          </div>
+
+          <div>
+            <span class="field-label">未加成收入</span>
+            <input type="number" id="baseIncome" class="record-input" readonly>
+          </div>
+
+        </div>
+      </div>
+
+
       <hr class="record-sep">
       <div style="padding:12px 20px">
         <div class="action-row">
@@ -216,7 +254,7 @@
     <!-- 代辦清單 -->
     <div class="input-card">
       <div class="input-card-header">
-        <span>✅ 代辦清單</span>
+        <span>代辦清單</span>
         <span class="todo-progress-badge" id="overallBadge">0 / 0</span>
       </div>
       <div class="todo-grid" id="todoGrid"></div>
@@ -362,7 +400,16 @@
           g.items.forEach(item => { checks[`${g.key}_${item.key}`] = false; });
         }
       });
-      return { date: '', score: '', notes: '', checks };
+      return {
+        date: '',
+        score: '',
+        notes: '',
+        shopIncome: '',
+        workIncome: '',
+        stageIncome: '',
+        baseIncome: '',
+        checks
+      };
     }
 
     /* ── 載入狀態 ── */
@@ -376,6 +423,10 @@
             date: saved.date ?? '',
             score: saved.score ?? '',
             notes: saved.notes ?? '',
+            shopIncome: saved.shopIncome ?? '',
+            workIncome: saved.workIncome ?? '',
+            stageIncome: saved.stageIncome ?? '',
+            baseIncome: saved.baseIncome ?? '',
             checks: { ...def.checks, ...(saved.checks ?? {}) },
           };
         }
@@ -392,12 +443,24 @@
       document.getElementById('recDate').value = state.date;
       document.getElementById('recScore').value = state.score;
       document.getElementById('recNotes').value = state.notes;
+
+      document.getElementById('shopIncome').value = state.shopIncome;
+      document.getElementById('workIncome').value = state.workIncome;
+      document.getElementById('stageIncome').value = state.stageIncome;
+      document.getElementById('baseIncome').value = state.baseIncome;
     }
 
     window.saveRecord = function () {
       state.date = document.getElementById('recDate').value;
       state.score = document.getElementById('recScore').value;
       state.notes = document.getElementById('recNotes').value;
+
+      // 保留收入欄位
+      state.shopIncome = document.getElementById('shopIncome').value;
+      state.workIncome = document.getElementById('workIncome').value;
+      state.stageIncome = document.getElementById('stageIncome').value;
+      state.baseIncome = document.getElementById('baseIncome').value;
+
       persistState();
     };
 
@@ -413,6 +476,23 @@
       state.checks = defaultState().checks;
       persistState();
       renderTodo();
+    };
+
+    window.updateIncome = function () {
+      const shop = Number(document.getElementById('shopIncome').value) || 0;
+      const work = Number(document.getElementById('workIncome').value) || 0;
+      const stage = Number(document.getElementById('stageIncome').value) || 0;
+
+      const total = shop + work + stage;
+
+      document.getElementById('baseIncome').value = total;
+
+      state.shopIncome = shop;
+      state.workIncome = work;
+      state.stageIncome = stage;
+      state.baseIncome = total;
+
+      persistState();
     };
 
     /* ── 代辦清單渲染 ── */
