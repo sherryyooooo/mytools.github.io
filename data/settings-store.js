@@ -82,6 +82,7 @@ const TALENTS = [
   { name: '武則天',   defaultQuality: '卓越' },
   { name: '阿星',     defaultQuality: '卓越' },
   { name: '書文',     defaultQuality: '卓越' },
+  { name: '青丘神女',     defaultQuality: '卓越' },
 
   /// 優秀
   // 等級獎勵
@@ -185,6 +186,8 @@ const ARTISTS = [
   { name: '含香', quality: '珍貴' },
   { name: '夏雨荷', quality: '珍貴' },
   { name: '羋月', quality: '珍貴' },
+  { name: '青丘神女', quality: '卓越' },
+
 
   // 卓越
   { name: '玉蘭',     quality: '卓越' },
@@ -236,10 +239,15 @@ function getArtistInfo(name) {
 const LS_REGISTRY = [
   { key: 'ft_talent_state', label: '人才設定(品質/擁有狀態)',   tool: '共用設定' },
   { key: 'app_artist_state', label: '藝人設定(擁有狀態)',               tool: '共用設定' },
+  
   { key: 'wmp_myM',         label: '我方影視作品清單',           tool: '作品合作比對器(記憶版)' },
   { key: 'wmp_myA',         label: '我方廣告作品清單',           tool: '作品合作比對器(記憶版)' },
+
   { key: 'ft_row_state',    label: '農田人才鍛鍊數值輸入',       tool: '農田人才鍛鍊' },
-  { key: 'fa_row_state',    label: '農田藝人鍛鍊數值輸入',       tool: '農田藝人鍛鍊' },  { key: 'fa_topn',         label: '農田藝人鍛鍊 Top-N 設定',      tool: '農田藝人鍛鍊' },
+  { key: 'fa_row_state',    label: '農田藝人鍛鍊數值輸入',       tool: '農田藝人鍛鍊' },
+  { key: 'fa_topn',         label: '農田藝人鍛鍊 Top-N 設定',      tool: '農田藝人鍛鍊' },
+  { key: 'fi_row_state',    label: '農田店鋪研究數值輸入',       tool: '農田店鋪研究' },
+
   { key: 'ranking_todo_talent_v1', label: '紀錄日期、能力、備忘、勾選狀態', tool: '榜單代辦清單-人才榜' },
   { key: 'ranking_todo_income_v1',  label: '紀錄日期、收入、備忘、勾選狀態', tool: '榜單代辦清單-收入榜' },
 ];
