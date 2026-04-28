@@ -186,7 +186,7 @@ const ARTISTS = [
   { name: '含香', quality: '珍貴' },
   { name: '夏雨荷', quality: '珍貴' },
   { name: '羋月', quality: '珍貴' },
-  { name: '青丘神女', quality: '卓越' },
+  { name: '青丘神女', quality: '珍貴' },
 
 
   // 卓越
@@ -237,8 +237,8 @@ function getArtistInfo(name) {
  * 設定中心的匯出 / 匯入 / 清空功能才能一併管理。
  * ------------------------------------------------------------ */
 const LS_REGISTRY = [
-  { key: 'ft_talent_state', label: '人才設定(品質/擁有狀態)',   tool: '共用設定' },
-  { key: 'app_artist_state', label: '藝人設定(擁有狀態)',               tool: '共用設定' },
+  { key: 'ft_talent_state', label: '人才設定(品質/擁有狀態)', tool: '共用設定' },
+  { key: 'app_artist_state', label: '藝人設定(擁有狀態)', tool: '共用設定' },
   
   { key: 'wmp_myM',         label: '我方影視作品清單',           tool: '作品合作比對器(記憶版)' },
   { key: 'wmp_myA',         label: '我方廣告作品清單',           tool: '作品合作比對器(記憶版)' },
