@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>澡堂-技師鍛鍊</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── 大類 Tab ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-tab.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .filter-tab:hover:not(.active) {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── 色彩語意 ── */
+    :root {
+      --best-bg:     #DBEAFE;
+      --best-border: #93C5FD;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .badge-top { background: #EFF6FF; color: #1D4ED8; }
+    .badge-bot { background: #F5F3FF; color: #6D28D9; }
+
+    /* ── 分類+項目合併儲存格 ── */
+    .data-table tbody td.item-merged-cell {
+      padding: 5px 12px;
+      vertical-align: middle;
+      background: var(--card) !important;
+      border-right: 1px solid var(--border);
+      border-left: none !important;
+    }
+    .item-merged-cell .item-inner {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .item-merged-cell .item-name {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* ── 表格 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      table-layout: fixed;
+      min-width: 654px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table thead th.num { text-align: right; }
+    .data-table tbody td {
+      padding: 0;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody td.num-cell { text-align: right; padding: 5px 10px; }
+    .data-table tbody td.result-cell {
+      text-align: right;
+      padding: 5px 10px;
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+    }
+    .data-table tbody td.seq-cell {
+      padding: 4px 6px;
+      font-size: 11px;
+      color: var(--sub);
+      text-align: center;
+      white-space: nowrap;
+      background: var(--bg);
+    }
+    .data-table thead th.sub-header {
+      text-align: center;
+      background: #EEF2FF;
+      color: #3730A3;
+      padding: 5px 8px;
+      font-size: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table thead tr:nth-child(2) th {
+      padding: 4px 8px;
+      font-size: 11px;
+      background: #fafafa;
+      border-top: 1px solid var(--border);
+    }
+
+    /* 數字輸入框 */
+    .num-input { width: 68px; }
+
+    /* ── 最優 cell 高亮 ── */
+    td.sub-best { background: var(--best-bg) !important; }
+    td.sub-best.sub-first { border-left: 3px solid var(--best-border) !important; }
+
+    /* ── 隱藏人才欄 ── */
+    #dataTable.hide-talent .col-talent { display: none; }
+    #dataTable.hide-talent col:nth-child(9) { width: 0 !important; }
+    #dataTable.hide-talent col:nth-child(3),
+    #dataTable.hide-talent col:nth-child(4),
+    #dataTable.hide-talent col:nth-child(5),
+    #dataTable.hide-talent col:nth-child(6),
+    #dataTable.hide-talent col:nth-child(7),
+    #dataTable.hide-talent col:nth-child(8) { width: auto !important; }
+
+    /* ── 當前最優卡片 ── */
+    .input-box {
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .box-header {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+    }
+    .best-header { background: #EFF6FF; color: #1D4ED8; }
+    .best-body {
+      padding: 10px 12px;
+      min-height: 62px;
+    }
+    .banner-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .banner-switch {
+      font-size: 12px;
+      color: var(--sub);
+      line-height: 1.5;
+    }
+    .banner-switch strong { color: var(--text); font-size: 14px; }
+
+    /* ── 人才徽章 ── */
+    .talent-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      padding: 8px 10px;
+      min-height: 34px;
+    }
+
+    @media (max-width: 750px) {
+      #dataTable .col-talent { display: none !important; }
+      #dataTable col:nth-child(9) { width: 0 !important; }
+      #dataTable col:nth-child(3),
+      #dataTable col:nth-child(4),
+      #dataTable col:nth-child(5),
+      #dataTable col:nth-child(6),
+      #dataTable col:nth-child(7),
+      #dataTable col:nth-child(8) { width: auto !important; }
+    }
+    @media (max-width: 640px) {
+      .num-input { width: 72px; }
+    }
+  </style>
+</head>
+<body>
+
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <div class="tool-page-header">
+    <h1>🛁 澡堂-技師鍛鍊</h1>
+    <p>輸入各項目花費與增加數值，自動標示最優加點項目並提示最佳換點時機</p>
+  </div>
+
+  <!-- 使用說明 -->
+  <div class="guide-card">
+    <div class="guide-header" onclick="toggleGuide()">
+      <span>📖 使用說明</span>
+      <span class="guide-toggle" id="guideToggle">▼ 展開</span>
+    </div>
+    <div class="guide-body" id="guideBody" style="display:none">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>選擇大類</strong><br>
+            點選上方 Tab 切換六大類（男澡堂部、女澡堂部、桑拿部、按摩部、中醫部、貴賓部），每個大類獨立計算最優項目。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>填寫花費與增加</strong><br>
+            依照遊戲中各技能目前顯示的「花費」與升級後「增加」數值，填入對應欄位。資料自動存入本機，重新開啟仍保留。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>解讀高亮</strong><br>
+            <span style="display:inline-block;width:12px;height:12px;background:#DBEAFE;border-radius:2px;vertical-align:middle;margin-right:4px;border:1px solid #93C5FD"></span>藍色格 = 當前大類所有項目（上方＋下方加成）中每元增加最高者。上下加成共用同一種貨幣，一起比較，標示唯一最優。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>查看換點建議</strong><br>
+            上方卡片即時顯示各加成類型最優項目與「加到多少時換下一項」，所有計算無需按鈕即時更新。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">5</div>
+          <div class="step-text"><strong>清除本機資料</strong><br>
+            「清除數值輸入」清空當前大類所有花費與增加；人才設定請至「⚙️ 設定人才」統一管理。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 大類 Tab -->
+  <div class="filter-tabs" id="catTabs"></div>
+
+  <!-- 當前最優區塊 -->
+  <div class="upload-card">
+    <div class="input-box" style="margin-bottom:12px">
+      <div class="box-header best-header">當前最優項目</div>
+      <div class="best-body">
+        <div class="banner-title" id="bestName">—</div>
+        <div class="banner-switch" id="bestSwitch">請先填寫數值</div>
+      </div>
+    </div>
+    <div class="clear-action-row">
+      <button class="clear-data-btn toggle" id="btnToggleTalent" onclick="toggleTalentColumn()">隱藏人才欄</button>
+      <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️ 設定人才</a>
+      <button class="clear-data-btn" onclick="clearInputState()">清除數值輸入</button>
+    </div>
+  </div>
+
+  <!-- 輸入表格 -->
+  <div class="input-card">
+    <div class="input-card-header">
+      <span id="tableTitle">各項目數值輸入(增加越多越優先)</span>
+      <span style="font-size:12px;font-weight:400;color:var(--sub)">填寫後即時計算</span>
+    </div>
+    <div style="overflow-x:auto">
+      <table class="data-table" id="dataTable">
+        <colgroup>
+          <col style="width:44px">
+          <col style="width:130px">
+          <col style="width:80px">
+          <col style="width:80px">
+          <col style="width:80px">
+          <col style="width:80px">
+          <col style="width:80px">
+          <col style="width:80px">
+          <col>
+        </colgroup>
+        <thead>
+          <tr>
+            <th rowspan="2">序號</th>
+            <th rowspan="2">項目</th>
+            <th colspan="3" class="sub-header">上方加成</th>
+            <th colspan="3" class="sub-header">下方加成</th>
+            <th rowspan="2" class="col-talent">相關人才</th>
+          </tr>
+          <tr>
+            <th class="num">花費</th>
+            <th class="num">增加</th>
+            <th class="num">每元增加</th>
+            <th class="num">花費</th>
+            <th class="num">增加</th>
+            <th class="num">每元增加</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+    <div class="hint-row">
+      <span class="hint-dot" style="background:#DBEAFE;border:1px solid #93C5FD"></span>
+      <span>當前最優項（上下加成共同競爭）</span>
+      <span style="margin-left:12px;color:#aaa">｜ 花費與增加均為空白時不納入計算</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="../data/settings-store.js"></script>
+<script src="../data/bathhouse-data.js"></script>
+<script>
+/* =====================================================
+ * 狀態：每列的花費(cost) / 增加(gain) 值
+ * key = bh_row_state_{categoryId}
+ * ===================================================== */
+const LS_STATE_PREFIX = 'bh_row_state_';
+const LS_CAT_KEY      = 'bh_current_cat';
+
+let currentCat = localStorage.getItem(LS_CAT_KEY) || CATEGORIES[0].id;
+
+/* 取得目前大類的資料列（只含該 category 的 BROWS） */
+function getCatRows() {
+  return BROWS.filter(r => r.category === currentCat);
+}
+
+function loadRowState(catId) {
+  const rows = BROWS.filter(r => r.category === catId);
+  try {
+    const saved = JSON.parse(localStorage.getItem(LS_STATE_PREFIX + catId));
+    if (Array.isArray(saved) && saved.length === rows.length) return saved;
+  } catch {}
+  return rows.map(() => ({ cost: '', gain: '' }));
+}
+
+function saveRowState() {
+  localStorage.setItem(LS_STATE_PREFIX + currentCat, JSON.stringify(state));
+}
+
+let state = loadRowState(currentCat);
+
+/* ── 工具函式 ── */
+const num = v => { const n = parseFloat(v); return isNaN(n) || v === '' ? null : n; };
+const fmt = n => n === null ? '—' : n.toFixed(2);
+
+function calcRatio(cost, gain) {
+  const c = num(cost), g = num(gain);
+  if (c === null || g === null || c === 0) return null;
+  return g / c;
+}
+
+/* ── 建立 Tab ── */
+function buildTabs() {
+  const container = document.getElementById('catTabs');
+  container.innerHTML = '';
+  CATEGORIES.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-tab' + (cat.id === currentCat ? ' active' : '');
+    btn.textContent = cat.icon + ' ' + cat.label;
+    btn.onclick = () => switchCat(cat.id);
+    container.appendChild(btn);
+  });
+}
+
+function switchCat(catId) {
+  currentCat = catId;
+  localStorage.setItem(LS_CAT_KEY, catId);
+  state = loadRowState(catId);
+
+  // 更新 Tab 外觀
+  document.querySelectorAll('.filter-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', CATEGORIES[i].id === catId);
+  });
+
+  // 更新表格標題
+  const cat = CATEGORIES.find(c => c.id === catId);
+  document.getElementById('tableTitle').textContent =
+    `${cat.icon} ${cat.label}．各項目數值輸入(增加越多越優先)`;
+
+  buildTable();
+  recalc();
+}
+
+/* ── 建立表格 DOM ── */
+function buildTable() {
+  const tbody   = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  const rows = getCatRows();
+
+  // 只抓 name 非空者（主列）
+  const parentIndices = rows.reduce((acc, r, i) => {
+    if (r.name) acc.push(i);
+    return acc;
+  }, []);
+
+  parentIndices.forEach((pi, gPos) => {
+    const row = rows[pi];
+    const tr  = document.createElement('tr');
+
+    // 序號
+    const tdSeq = document.createElement('td');
+    tdSeq.className = 'seq-cell';
+    tdSeq.textContent = gPos + 1;
+    tr.appendChild(tdSeq);
+
+    // 項目名稱
+    const tdItem = document.createElement('td');
+    tdItem.className = 'item-merged-cell';
+    tdItem.innerHTML = `<div class="item-inner"><span class="item-name">${row.name}</span></div>`;
+    tr.appendChild(tdItem);
+
+    // 插入 上方/下方 兩組的花費/增加/每元增加
+    function insertSub(rowIdx, isTop) {
+      const tdC = document.createElement('td');
+      tdC.className = 'num-cell sub-first';
+      tdC.dataset.rowIdx = rowIdx;
+      tdC.dataset.sub = isTop ? 'top' : 'bot';
+      const inC = document.createElement('input');
+      inC.type = 'number'; inC.min = '0'; inC.className = 'num-input';
+      inC.value = state[rowIdx].cost;
+      inC.addEventListener('input', () => { state[rowIdx].cost = inC.value; saveRowState(); recalc(); });
+      tdC.appendChild(inC);
+      tr.appendChild(tdC);
+
+      const tdG = document.createElement('td');
+      tdG.className = 'num-cell';
+      tdG.dataset.rowIdx = rowIdx;
+      tdG.dataset.sub = isTop ? 'top' : 'bot';
+      const inG = document.createElement('input');
+      inG.type = 'number'; inG.min = '0'; inG.className = 'num-input';
+      inG.value = state[rowIdx].gain;
+      inG.addEventListener('input', () => { state[rowIdx].gain = inG.value; saveRowState(); recalc(); });
+      tdG.appendChild(inG);
+      tr.appendChild(tdG);
+
+      const tdR = document.createElement('td');
+      tdR.className = 'result-cell';
+      tdR.dataset.rowIdx = rowIdx;
+      tdR.dataset.sub = isTop ? 'top' : 'bot';
+      tdR.id = `ratio-${currentCat}-${rowIdx}`;
+      tdR.textContent = '—';
+      tr.appendChild(tdR);
+    }
+
+    // 上方加成（pi）
+    insertSub(pi, true);
+
+    // 下方加成（pi+1，name 為空）
+    const ci = pi + 1;
+    if (ci < rows.length && rows[ci].name === '') {
+      insertSub(ci, false);
+    } else {
+      for (let k = 0; k < 3; k++) {
+        const td = document.createElement('td');
+        td.textContent = '—';
+        tr.appendChild(td);
+      }
+    }
+
+    // 相關人才
+    const tdT = document.createElement('td');
+    tdT.id = `talent-cell-${currentCat}-${pi}`;
+    tdT.className = 'col-talent';
+    tdT.innerHTML = `<div class="talent-badges">${renderTalentBadgesHtml(row.talents || [])}</div>`;
+    tr.appendChild(tdT);
+
+    tbody.appendChild(tr);
+  });
+}
+
+/* ── 重新計算並更新 UI ── */
+function recalc() {
+  const rows = getCatRows();
+
+  // 算出每列 ratio
+  const ratios = state.map(s => calcRatio(s.cost, s.gain));
+
+  // 更新比值欄位
+  ratios.forEach((r, i) => {
+    const el = document.getElementById(`ratio-${currentCat}-${i}`);
+    if (el) el.textContent = fmt(r);
+  });
+
+  // 上方＋下方加成共用同種貨幣，全類一起比，找唯一最大
+  const validRatios = ratios.filter(r => r !== null);
+  const maxRatio = validRatios.length > 0 ? Math.max(...validRatios) : -Infinity;
+
+  // 清除並重新套用 cell 高亮
+  document.querySelectorAll('#tableBody td[data-row-idx]').forEach(td => {
+    td.classList.remove('sub-best');
+  });
+  ratios.forEach((r, i) => {
+    if (r === null || r !== maxRatio) return;
+    const cells = document.querySelectorAll(`#tableBody td[data-row-idx="${i}"]`);
+    cells.forEach(td => td.classList.add('sub-best'));
+  });
+
+  // 更新橫幅
+  updateBanner(ratios, maxRatio, rows);
+}
+
+function updateBanner(ratios, maxVal, rows) {
+  const validIndices = ratios
+    .map((r, i) => ({ r, i }))
+    .filter(x => x.r !== null);
+
+  const nameEl   = document.getElementById('bestName');
+  const switchEl = document.getElementById('bestSwitch');
+
+  if (validIndices.length === 0 || maxVal === -Infinity) {
+    nameEl.textContent = '—';
+    switchEl.innerHTML = '請先填寫數值';
+    return;
+  }
+
+  const bestIdx     = validIndices.find(x => x.r === maxVal).i;
+  const bestRowName = findParentName(bestIdx, rows);
+  nameEl.textContent = `${bestRowName}（${rows[bestIdx].sub}）`;
+
+  const sorted = [...validIndices].sort((a, b) => b.r - a.r);
+  if (sorted.length < 2) {
+    switchEl.innerHTML = '目前只有一筆資料，無法計算換點建議';
+    return;
+  }
+
+  const secondRatio = sorted[1].r;
+  const bestGain    = num(state[bestIdx].gain);
+
+  if (bestGain === null || secondRatio <= 0) {
+    switchEl.innerHTML = '無法計算換點（資料不足）';
+    return;
+  }
+
+  const threshold = bestGain / secondRatio;
+  switchEl.innerHTML = `繼續加至增加量達 <strong>${threshold.toFixed(2)}</strong> 時，換下一項更划算`;
+}
+
+function findParentName(idx, rows) {
+  for (let i = idx; i >= 0; i--) {
+    if (rows[i] && rows[i].name) return rows[i].name;
+  }
+  return '';
+}
+
+/* ── 清除功能 ── */
+window.clearInputState = function() {
+  if (!confirm('確定要清除此大類所有花費與增加的輸入資料嗎？')) return;
+  state.forEach(s => { s.cost = ''; s.gain = ''; });
+  saveRowState();
+  buildTable();
+  recalc();
+};
+
+window.toggleTalentColumn = function() {
+  const table = document.getElementById('dataTable');
+  const btn   = document.getElementById('btnToggleTalent');
+  const hidden = table.classList.toggle('hide-talent');
+  btn.textContent = hidden ? '顯示人才欄' : '隱藏人才欄';
+};
+
+function toggleGuide() {
+  const body   = document.getElementById('guideBody');
+  const toggle = document.getElementById('guideToggle');
+  const open   = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  toggle.textContent = open ? '▲ 收合' : '▼ 展開';
+}
+
+// 初始化
+buildTabs();
+switchCat(currentCat);
+</script>
+</body>
+</html>
