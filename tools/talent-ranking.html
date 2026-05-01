@@ -171,46 +171,68 @@
       </div>
     </div>
 
-    <!-- 紀錄區塊 -->
-    <div class="input-card">
-      <div class="input-card-header">
-        <span>榜單紀錄</span>
-        <span style="font-size:12px;font-weight:400;color:var(--sub)">自動儲存</span>
+    <!-- 遊戲紀錄（共用：首頁 / 人才榜 / 收入榜）-->
+    <div class="settings-card">
+      <div class="settings-card-header" onclick="toggleSection('gameRecord')">
+        <div class="settings-card-header-left">
+          <span>📊 遊戲紀錄</span>
+        </div>
+        <span class="settings-card-toggle" id="gameRecordToggle">▼ 展開</span>
       </div>
-      <div style="padding:16px 20px">
-        <div class="record-grid">
-
-          <!-- 左：日期 + 能力 -->
-          <div class="record-fields">
-            <div>
-              <span class="field-label">記錄日期</span>
-              <div class="date-row">
-                <input type="date" id="recDate" class="record-input" oninput="saveRecord()">
-                <button class="today-btn" onclick="setToday()">今日</button>
-              </div>
-            </div>
-            <div>
-              <span class="field-label">記錄最高能力</span>
-              <input type="number" id="recAbility" class="record-input" placeholder="輸入數值" min="0"
-                oninput="saveRecord()">
+      <div id="gameRecordBody" style="display:none">
+        <div class="settings-card-body sr-body">
+          <div class="sr-row">
+            <label class="sr-label">紀錄日期</label>
+            <div class="sr-date-wrap">
+              <input type="date" id="srDate" class="sr-input" oninput="saveSharedRecord()">
+              <button class="sr-today-btn" onclick="srSetToday()">今日</button>
             </div>
           </div>
-
-          <!-- 右：備忘 -->
-          <div>
-            <span class="field-label">備忘文字</span>
-            <textarea id="recNotes" class="notes-area" placeholder="本次榜單備忘事項…" oninput="saveRecord()"></textarea>
+          <div class="sr-row">
+            <label class="sr-label">最高能力</label>
+            <input type="number" id="srAbility" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
           </div>
-
+          <div class="sr-row">
+            <label class="sr-label">最高收入</label>
+            <input type="number" id="srMaxIncome" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+          </div>
+          <div class="sr-sub-group">
+            <div class="sr-row">
+              <label class="sr-label">店鋪總收入</label>
+              <input type="number" id="srStore" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            </div>
+            <div class="sr-row">
+              <label class="sr-label">作品總收入</label>
+              <input type="number" id="srWork" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            </div>
+            <div class="sr-row">
+              <label class="sr-label">關卡收入</label>
+              <input type="number" id="srStage" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            </div>
+            <div class="sr-row">
+              <label class="sr-label">未加成收入<span class="sr-auto-badge">自動</span></label>
+              <input type="number" id="srBase" class="sr-input sr-num" readonly tabindex="-1">
+            </div>
+          </div>
+          <div class="sr-row sr-memo-row">
+            <label class="sr-label">備忘文字</label>
+            <textarea id="srMemo" class="sr-memo" rows="3" placeholder="本次榜單備忘事項…" oninput="saveSharedRecord()"></textarea>
+          </div>
+        </div>
+        <div class="autosave-hint">
+          <span class="autosave-dot"></span>
+          <span>資料三頁共用 — 在首頁或收入榜修改，此頁即時同步</span>
         </div>
       </div>
-      <hr class="record-sep">
-      <div style="padding:12px 20px">
-        <div class="action-row">
-          <button class="clear-data-btn danger" onclick="clearTodos()">✕ 清空代辦勾選</button>
-          <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️
-            資料管理（匯出/匯入）</a>
-        </div>
+    </div>
+
+    <div class="upload-card">
+      <div style="margin-bottom:12px">
+        <span class="section-title">工具區</span>
+      </div>
+      <div class="clear-action-row" style="margin-top:0;padding-top:12px">
+        <button class="clear-data-btn danger" onclick="clearTodos()">✕ 清空代辦勾選</button>
+        <a class="clear-data-btn" href="../index.html" style="text-decoration:none;text-align:center">⚙️ 資料管理（匯出/匯入）</a>
       </div>
     </div>
 
@@ -225,6 +247,7 @@
 
   </div>
 
+  <script src="../data/settings-store.js"></script>
   <script>
     /* ── 代辦項目定義 ─────────────────────────────────────
      * items: null  → standalone 單項卡（無子項）
@@ -358,7 +381,7 @@
           g.items.forEach(item => { checks[`${g.key}_${item.key}`] = false; });
         }
       });
-      return { date: '', ability: '', notes: '', checks };
+      return { checks };
     }
 
     /* ── 載入狀態 ── */
@@ -369,9 +392,6 @@
           const saved = JSON.parse(raw);
           const def = defaultState();
           return {
-            date: saved.date ?? '',
-            ability: saved.ability ?? '',
-            notes: saved.notes ?? '',
             checks: { ...def.checks, ...(saved.checks ?? {}) },
           };
         }
@@ -382,27 +402,6 @@
     function persistState() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
     const state = loadState();
-
-    /* ── 紀錄區 ── */
-    function restoreRecord() {
-      document.getElementById('recDate').value = state.date;
-      document.getElementById('recAbility').value = state.ability;
-      document.getElementById('recNotes').value = state.notes;
-    }
-
-    window.saveRecord = function () {
-      state.date = document.getElementById('recDate').value;
-      state.ability = document.getElementById('recAbility').value;
-      state.notes = document.getElementById('recNotes').value;
-      persistState();
-    };
-
-    window.setToday = function () {
-      const t = new Date();
-      document.getElementById('recDate').value =
-        `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-      saveRecord();
-    };
 
     window.clearTodos = function () {
       if (!confirm('確定要清空所有勾選狀態嗎？')) return;
@@ -484,7 +483,7 @@
       toggle.textContent = open ? '▲ 收合' : '▼ 展開';
     }
 
-    restoreRecord();
+    loadSharedRecord();
     renderTodo();
   </script>
 </body>

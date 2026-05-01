@@ -177,77 +177,68 @@
       </div>
     </div>
 
-    <!-- 紀錄區塊 -->
-    <div class="input-card">
-      <div class="input-card-header">
-        <span>榜單紀錄</span>
-        <span style="font-size:12px;font-weight:400;color:var(--sub)">自動儲存</span>
+    <!-- 遊戲紀錄（共用：首頁 / 人才榜 / 收入榜）-->
+    <div class="settings-card">
+      <div class="settings-card-header" onclick="toggleSection('gameRecord')">
+        <div class="settings-card-header-left">
+          <span>📊 遊戲紀錄</span>
+        </div>
+        <span class="settings-card-toggle" id="gameRecordToggle">▼ 展開</span>
       </div>
-      <div style="padding:16px 20px">
-        <div class="record-grid">
-
-          <!-- 左：日期 + 收入 -->
-          <div class="record-fields">
-            <div>
-              <span class="field-label">記錄日期</span>
-              <div class="date-row">
-                <input type="date" id="recDate" class="record-input" oninput="saveRecord()">
-                <button class="today-btn" onclick="setToday()">今日</button>
-              </div>
-            </div>
-            <div>
-              <span class="field-label">記錄最高收入</span>
-              <input type="number" id="recScore" class="record-input" placeholder="輸入數值" min="0" oninput="saveRecord()">
+      <div id="gameRecordBody" style="display:none">
+        <div class="settings-card-body sr-body">
+          <div class="sr-row">
+            <label class="sr-label">紀錄日期</label>
+            <div class="sr-date-wrap">
+              <input type="date" id="srDate" class="sr-input" oninput="saveSharedRecord()">
+              <button class="sr-today-btn" onclick="srSetToday()">今日</button>
             </div>
           </div>
-
-
-
-          <!-- 右：備忘 -->
-          <div>
-            <span class="field-label">備忘文字</span>
-            <textarea id="recNotes" class="notes-area" placeholder="本次榜單備忘事項…" oninput="saveRecord()"></textarea>
+          <div class="sr-row">
+            <label class="sr-label">最高能力</label>
+            <input type="number" id="srAbility" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
           </div>
-
+          <div class="sr-row">
+            <label class="sr-label">最高收入</label>
+            <input type="number" id="srMaxIncome" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+          </div>
+          <div class="sr-sub-group">
+            <div class="sr-row">
+              <label class="sr-label">店鋪總收入</label>
+              <input type="number" id="srStore" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            </div>
+            <div class="sr-row">
+              <label class="sr-label">作品總收入</label>
+              <input type="number" id="srWork" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            </div>
+            <div class="sr-row">
+              <label class="sr-label">關卡收入</label>
+              <input type="number" id="srStage" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            </div>
+            <div class="sr-row">
+              <label class="sr-label">未加成收入<span class="sr-auto-badge">自動</span></label>
+              <input type="number" id="srBase" class="sr-input sr-num" readonly tabindex="-1">
+            </div>
+          </div>
+          <div class="sr-row sr-memo-row">
+            <label class="sr-label">備忘文字</label>
+            <textarea id="srMemo" class="sr-memo" rows="3" placeholder="本次榜單備忘事項…" oninput="saveSharedRecord()"></textarea>
+          </div>
+        </div>
+        <div class="autosave-hint">
+          <span class="autosave-dot"></span>
+          <span>資料三頁共用 — 在首頁或人才榜修改，此頁即時同步</span>
         </div>
       </div>
+    </div>
 
-      <!-- 未加成收入 -->
-      <hr class="record-sep">
-      <div style="padding:16px 20px">
-        <div class="record-grid-row">
-
-          <div>
-            <span class="field-label">店鋪總收入</span>
-            <input type="number" id="shopIncome" class="record-input" min="0" oninput="updateIncome()">
-          </div>
-
-          <div>
-            <span class="field-label">作品總收入</span>
-            <input type="number" id="workIncome" class="record-input" min="0" oninput="updateIncome()">
-          </div>
-
-          <div>
-            <span class="field-label">關卡收入</span>
-            <input type="number" id="stageIncome" class="record-input" min="0" oninput="updateIncome()">
-          </div>
-
-          <div>
-            <span class="field-label">未加成收入</span>
-            <input type="number" id="baseIncome" class="record-input" readonly>
-          </div>
-
-        </div>
+    <div class="upload-card">
+      <div style="margin-bottom:12px">
+        <span class="section-title">工具區</span>
       </div>
-
-
-      <hr class="record-sep">
-      <div style="padding:12px 20px">
-        <div class="action-row">
-          <button class="clear-data-btn danger" onclick="clearTodos()">✕ 清空代辦勾選</button>
-          <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️
-            資料管理（匯出/匯入）</a>
-        </div>
+      <div class="clear-action-row" style="margin-top:0;padding-top:12px">
+        <button class="clear-data-btn danger" onclick="clearTodos()">✕ 清空代辦勾選</button>
+        <a class="clear-data-btn" href="../index.html" style="text-decoration:none;text-align:center">⚙️ 資料管理（匯出/匯入）</a>
       </div>
     </div>
 
@@ -262,10 +253,11 @@
 
   </div>
 
+  <script src="../data/settings-store.js"></script>
   <script>
     /* ── 代辦項目定義 ─────────────────────────────────────
      * items: null  → standalone 單項卡（無子項）
-     * items: [...] → 群組卡（有彩色標題列）
+     * items: [...] → 群組卡（有彩色標單列）
      * 參考色組
      * { name: 'Red', bg: '#FEF2F2', text: '#B91C1C' },
      * { name: 'Rose', bg: '#FFF1F2', text: '#BE123C' },
@@ -400,16 +392,7 @@
           g.items.forEach(item => { checks[`${g.key}_${item.key}`] = false; });
         }
       });
-      return {
-        date: '',
-        score: '',
-        notes: '',
-        shopIncome: '',
-        workIncome: '',
-        stageIncome: '',
-        baseIncome: '',
-        checks
-      };
+      return { checks };
     }
 
     /* ── 載入狀態 ── */
@@ -420,13 +403,6 @@
           const saved = JSON.parse(raw);
           const def = defaultState();
           return {
-            date: saved.date ?? '',
-            score: saved.score ?? '',
-            notes: saved.notes ?? '',
-            shopIncome: saved.shopIncome ?? '',
-            workIncome: saved.workIncome ?? '',
-            stageIncome: saved.stageIncome ?? '',
-            baseIncome: saved.baseIncome ?? '',
             checks: { ...def.checks, ...(saved.checks ?? {}) },
           };
         }
@@ -437,63 +413,6 @@
     function persistState() { localStorage.setItem(LS_KEY, JSON.stringify(state)); }
 
     const state = loadState();
-
-    /* ── 紀錄區 ── */
-    function restoreRecord() {
-      document.getElementById('recDate').value = state.date;
-      document.getElementById('recScore').value = state.score;
-      document.getElementById('recNotes').value = state.notes;
-
-      document.getElementById('shopIncome').value = state.shopIncome;
-      document.getElementById('workIncome').value = state.workIncome;
-      document.getElementById('stageIncome').value = state.stageIncome;
-      document.getElementById('baseIncome').value = state.baseIncome;
-    }
-
-    window.saveRecord = function () {
-      state.date = document.getElementById('recDate').value;
-      state.score = document.getElementById('recScore').value;
-      state.notes = document.getElementById('recNotes').value;
-
-      // 保留收入欄位
-      state.shopIncome = document.getElementById('shopIncome').value;
-      state.workIncome = document.getElementById('workIncome').value;
-      state.stageIncome = document.getElementById('stageIncome').value;
-      state.baseIncome = document.getElementById('baseIncome').value;
-
-      persistState();
-    };
-
-    window.setToday = function () {
-      const t = new Date();
-      document.getElementById('recDate').value =
-        `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`;
-      saveRecord();
-    };
-
-    window.clearTodos = function () {
-      if (!confirm('確定要清空所有勾選狀態嗎？')) return;
-      state.checks = defaultState().checks;
-      persistState();
-      renderTodo();
-    };
-
-    window.updateIncome = function () {
-      const shop = Number(document.getElementById('shopIncome').value) || 0;
-      const work = Number(document.getElementById('workIncome').value) || 0;
-      const stage = Number(document.getElementById('stageIncome').value) || 0;
-
-      const total = shop + work + stage;
-
-      document.getElementById('baseIncome').value = total;
-
-      state.shopIncome = shop;
-      state.workIncome = work;
-      state.stageIncome = stage;
-      state.baseIncome = total;
-
-      persistState();
-    };
 
     /* ── 代辦清單渲染 ── */
     function renderTodo() {
@@ -569,7 +488,7 @@
       toggle.textContent = open ? '▲ 收合' : '▼ 展開';
     }
 
-    restoreRecord();
+    loadSharedRecord();
     renderTodo();
   </script>
 </body>

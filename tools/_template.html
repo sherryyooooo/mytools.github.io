@@ -14,7 +14,8 @@
      * ── 共用 class 速查（直接使用，無需補 CSS）─────────
      *
      * 【版面】
-     *   .page-container         最外層 wrapper（max-width 1500px + padding）
+     *   .page-container         最外層 wrapper（width:100%，padding 32px 24px）
+     *                           sidebar 由 shared/header.js 注入，內容自動置於 .main-wrap 內
      *   .tool-page-header       標題區（h1 + p）
      *
      * 【卡片容器】
@@ -95,7 +96,8 @@
 </head>
 <body>
 
-<!-- ★ 共用 Header（含返回按鈕），不需修改 -->
+<!-- ★ 共用側欄 + main-wrap 包裝，不需修改 -->
+<!-- header.js 會自動注入左側欄，並將本頁所有內容包入 .main-wrap -->
 <script src="../shared/header.js"></script>
 
 <div class="page-container">

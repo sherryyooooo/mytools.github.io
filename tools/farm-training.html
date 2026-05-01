@@ -210,7 +210,7 @@
       .player-grid { grid-template-columns: 1fr; }
     }
 
-    /* ── 人才徽章品質（僅顯示用，editing 在 settings.html）── */
+    /* ── 人才徽章品質（僅顯示用，editing 在首頁設定中心 index.html）── */
 
     /* ── 人才徽章（表格相關人才欄）── */
     .talent-badges {
@@ -301,7 +301,7 @@
     </div>
     <div class="clear-action-row">
       <button class="clear-data-btn toggle" id="btnToggleTalent" onclick="toggleTalentColumn()">隱藏人才欄</button>
-      <a class="clear-data-btn" href="settings.html" style="text-decoration:none;text-align:center">⚙️ 設定人才</a>
+      <a class="clear-data-btn" href="../index.html" style="text-decoration:none;text-align:center">⚙️ 設定人才</a>
       <button class="clear-data-btn" onclick="clearInputState()">清除數值輸入</button>
     </div>
   </div>
@@ -567,7 +567,7 @@ function getRowTalents(idx) {
   return [];
 }
 
-/* updateAllTalentBadges 由 settings.html 設定後、頁面重新載入時自動更新 */
+/* updateAllTalentBadges 由首頁設定中心（index.html）設定後、頁面重新載入時自動更新 */
 
 function updateAllTalentBadges() {
   ROWS.forEach((row, i) => {
