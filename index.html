@@ -15,6 +15,7 @@
       margin-bottom: 20px;
       overflow: hidden;
     }
+
     .settings-card-header {
       display: flex;
       align-items: center;
@@ -25,6 +26,7 @@
       cursor: pointer;
       user-select: none;
     }
+
     .settings-card-header-left {
       display: flex;
       align-items: center;
@@ -32,108 +34,331 @@
       font-weight: 700;
       font-size: 15px;
     }
+
     .settings-card-toggle {
       font-size: 13px;
       color: var(--sub);
       white-space: nowrap;
     }
-    .settings-card-body { padding: 16px 20px; }
-    .section-desc { font-size: 13px; color: var(--sub); margin-bottom: 14px; line-height: 1.6; }
-    .section-desc strong { color: var(--text); }
-    .search-bar { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
-    .search-input {
-      flex: 1; padding: 7px 12px;
-      border: 1.5px solid var(--border); border-radius: 10px;
-      font-size: 14px; font-family: inherit;
-      background: var(--bg); color: var(--text);
-      outline: none; transition: border-color 0.15s;
+
+    .settings-card-body {
+      padding: 16px 20px;
     }
-    .search-input:focus { border-color: var(--blue); }
-    .search-count { font-size: 13px; color: var(--sub); white-space: nowrap; }
+
+    .section-desc {
+      font-size: 13px;
+      color: var(--sub);
+      margin-bottom: 14px;
+      line-height: 1.6;
+    }
+
+    .section-desc strong {
+      color: var(--text);
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 7px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .search-input:focus {
+      border-color: var(--blue);
+    }
+
+    .search-count {
+      font-size: 13px;
+      color: var(--sub);
+      white-space: nowrap;
+    }
+
     .entity-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
       gap: 5px;
     }
+
     .talent-row {
-      display: flex; align-items: center; flex-wrap: nowrap; gap: 8px;
-      padding: 6px 10px; background: var(--bg); border-radius: 8px;
-      overflow: hidden; transition: background 0.1s;
+      display: flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 8px;
+      padding: 6px 10px;
+      background: var(--bg);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: background 0.1s;
     }
-    .talent-row:hover { background: #EBEBED; }
-    .talent-row.is-hidden-by-search { display: none; }
+
+    .talent-row:hover {
+      background: #EBEBED;
+    }
+
+    .talent-row.is-hidden-by-search {
+      display: none;
+    }
+
     .talent-name {
-      min-width: 60px; font-weight: 600; font-size: 13px; color: var(--text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
+      min-width: 60px;
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
     }
+
     .talent-controls {
-      display: flex; flex-direction: row; align-items: center;
-      gap: 4px; flex: 1; justify-content: flex-end; min-width: 0;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 4px;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: 0;
     }
-    .quality-group { display: flex; gap: 3px; }
+
+    .quality-group {
+      display: flex;
+      gap: 3px;
+    }
+
     .quality-btn {
-      padding: 2px 7px; border-radius: 6px; border: 1.5px solid var(--border);
-      font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
-      background: var(--card); color: var(--sub); transition: all 0.1s; white-space: nowrap;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--card);
+      color: var(--sub);
+      transition: all 0.1s;
+      white-space: nowrap;
     }
-    .quality-btn.aq-precious { background: #FEF9C3; color: #92400E; border-color: #FDE68A; }
-    .quality-btn.aq-superior { background: #F3E8FF; color: #7E22CE; border-color: #DDD6FE; }
-    .quality-btn.aq-good     { background: #DBEAFE; color: #1D4ED8; border-color: #BFDBFE; }
+
+    .quality-btn.aq-precious {
+      background: #FEF9C3;
+      color: #92400E;
+      border-color: #FDE68A;
+    }
+
+    .quality-btn.aq-superior {
+      background: #F3E8FF;
+      color: #7E22CE;
+      border-color: #DDD6FE;
+    }
+
+    .quality-btn.aq-good {
+      background: #DBEAFE;
+      color: #1D4ED8;
+      border-color: #BFDBFE;
+    }
+
     .owned-btn {
-      padding: 2px 10px; border-radius: 6px; border: 1.5px solid var(--border);
-      font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
-      background: var(--card); color: var(--sub); transition: all 0.1s;
-      margin-left: 2px; white-space: nowrap;
+      padding: 2px 10px;
+      border-radius: 6px;
+      border: 1.5px solid var(--border);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      background: var(--card);
+      color: var(--sub);
+      transition: all 0.1s;
+      margin-left: 2px;
+      white-space: nowrap;
     }
-    .owned-btn.is-owned { background: #DCFCE7; color: #166534; border-color: #86EFAC; }
-    .bulk-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+
+    .owned-btn.is-owned {
+      background: #DCFCE7;
+      color: #166534;
+      border-color: #86EFAC;
+    }
+
+    .bulk-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
     .bulk-btn {
-      padding: 5px 14px; border-radius: 8px; border: none;
-      font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-      background: #EEF2FF; color: #3730A3; transition: opacity 0.2s, transform 0.1s;
-    }
-    .bulk-btn:hover  { opacity: 0.8; transform: translateY(-1px); }
-    .bulk-btn:active { transform: translateY(0); }
-    .bulk-btn.danger { background: #FFF3E0; color: #E65100; }
-    .autosave-hint {
-      font-size: 12px; color: var(--sub);
-      display: flex; align-items: center; gap: 5px;
-      padding: 10px 20px; border-top: 1px solid var(--border);
-    }
-    .autosave-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); flex-shrink: 0; }
-    .quality-section-title {
-      font-size: 11px; font-weight: 700; color: var(--sub);
-      letter-spacing: 0.05em; text-transform: uppercase;
-      padding: 8px 2px 4px; grid-column: 1 / -1;
-    }
-    .data-mgmt-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-    .mgmt-btn {
-      padding: 9px 20px; border-radius: 10px; border: none;
-      font-size: 14px; font-weight: 700; cursor: pointer; font-family: inherit;
+      padding: 5px 14px;
+      border-radius: 8px;
+      border: none;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      background: #EEF2FF;
+      color: #3730A3;
       transition: opacity 0.2s, transform 0.1s;
-      display: flex; align-items: center; gap: 6px;
     }
-    .mgmt-btn:hover  { opacity: 0.82; transform: translateY(-1px); }
-    .mgmt-btn:active { transform: translateY(0); }
-    .mgmt-btn-export { background: #EEF2FF; color: #3730A3; }
-    .mgmt-btn-import { background: #F0FDF4; color: #166534; }
-    .mgmt-btn-clear  { background: #FFF1F2; color: #9F1239; }
-    .data-summary-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 4px; }
+
+    .bulk-btn:hover {
+      opacity: 0.8;
+      transform: translateY(-1px);
+    }
+
+    .bulk-btn:active {
+      transform: translateY(0);
+    }
+
+    .bulk-btn.danger {
+      background: #FFF3E0;
+      color: #E65100;
+    }
+
+    .autosave-hint {
+      font-size: 12px;
+      color: var(--sub);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 10px 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .autosave-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      flex-shrink: 0;
+    }
+
+    .quality-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sub);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 8px 2px 4px;
+      grid-column: 1 / -1;
+    }
+
+    .data-mgmt-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .mgmt-btn {
+      padding: 9px 20px;
+      border-radius: 10px;
+      border: none;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mgmt-btn:hover {
+      opacity: 0.82;
+      transform: translateY(-1px);
+    }
+
+    .mgmt-btn:active {
+      transform: translateY(0);
+    }
+
+    .mgmt-btn-export {
+      background: #EEF2FF;
+      color: #3730A3;
+    }
+
+    .mgmt-btn-import {
+      background: #F0FDF4;
+      color: #166534;
+    }
+
+    .mgmt-btn-clear {
+      background: #FFF1F2;
+      color: #9F1239;
+    }
+
+    .data-summary-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 4px;
+    }
+
     .data-summary-table th {
-      text-align: left; padding: 6px 12px; font-size: 11px; font-weight: 600; color: var(--sub);
-      border-bottom: 1px solid var(--border); background: #fafafa;
+      text-align: left;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sub);
+      border-bottom: 1px solid var(--border);
+      background: #fafafa;
     }
-    .data-summary-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .data-summary-table tr:last-child td { border-bottom: none; }
-    .ds-tool  { font-size: 12px; color: var(--sub); }
-    .ds-label { font-weight: 600; }
-    .ds-size  { text-align: right; font-variant-numeric: tabular-nums; color: var(--sub); white-space: nowrap; }
+
+    .data-summary-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .data-summary-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .ds-tool {
+      font-size: 12px;
+      color: var(--sub);
+    }
+
+    .ds-label {
+      font-weight: 600;
+    }
+
+    .ds-size {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--sub);
+      white-space: nowrap;
+    }
+
     .ds-status {
-      display: inline-block; padding: 2px 8px; border-radius: 6px;
-      font-size: 11px; font-weight: 700; white-space: nowrap;
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
     }
-    .status-has   { background: #DCFCE7; color: #166534; }
-    .status-empty { background: #F3F4F6; color: #9CA3AF; }
+
+    .status-has {
+      background: #DCFCE7;
+      color: #166534;
+    }
+
+    .status-empty {
+      background: #F3F4F6;
+      color: #9CA3AF;
+    }
   </style>
 </head>
 
@@ -170,8 +395,9 @@
           </p>
           <div class="data-mgmt-actions">
             <button class="mgmt-btn mgmt-btn-export" onclick="exportAllData()">⬆ 匯出備份</button>
-            <button class="mgmt-btn mgmt-btn-import" onclick="document.getElementById('importFileInput').click()">⬇ 匯入備份</button>
-            <button class="mgmt-btn mgmt-btn-clear"  onclick="clearAllData()">🗑 清空所有資料</button>
+            <button class="mgmt-btn mgmt-btn-import" onclick="document.getElementById('importFileInput').click()">⬇
+              匯入備份</button>
+            <button class="mgmt-btn mgmt-btn-clear" onclick="clearAllData()">🗑 清空所有資料</button>
           </div>
           <table class="data-summary-table">
             <thead>
@@ -211,24 +437,29 @@
           </div>
           <div class="sr-row">
             <label class="sr-label">最高能力</label>
-            <input type="number" id="srAbility" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            <input type="number" id="srAbility" class="sr-input sr-num" min="0" placeholder=""
+              oninput="saveSharedRecord()">
           </div>
           <div class="sr-row">
             <label class="sr-label">最高收入</label>
-            <input type="number" id="srMaxIncome" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+            <input type="number" id="srMaxIncome" class="sr-input sr-num" min="0" placeholder=""
+              oninput="saveSharedRecord()">
           </div>
           <div class="sr-sub-group">
             <div class="sr-row">
               <label class="sr-label">店鋪總收入</label>
-              <input type="number" id="srStore" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+              <input type="number" id="srStore" class="sr-input sr-num" min="0" placeholder=""
+                oninput="saveSharedRecord()">
             </div>
             <div class="sr-row">
               <label class="sr-label">作品總收入</label>
-              <input type="number" id="srWork" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+              <input type="number" id="srWork" class="sr-input sr-num" min="0" placeholder=""
+                oninput="saveSharedRecord()">
             </div>
             <div class="sr-row">
               <label class="sr-label">關卡收入</label>
-              <input type="number" id="srStage" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
+              <input type="number" id="srStage" class="sr-input sr-num" min="0" placeholder=""
+                oninput="saveSharedRecord()">
             </div>
             <div class="sr-row">
               <label class="sr-label">未加成收入<span class="sr-auto-badge">自動</span></label>
@@ -237,7 +468,8 @@
           </div>
           <div class="sr-row sr-memo-row">
             <label class="sr-label">備忘文字</label>
-            <textarea id="srMemo" class="sr-memo" rows="3" placeholder="本次榜單備忘事項…" oninput="saveSharedRecord()"></textarea>
+            <textarea id="srMemo" class="sr-memo" rows="3" placeholder="本次榜單備忘事項…"
+              oninput="saveSharedRecord()"></textarea>
           </div>
         </div>
         <div class="autosave-hint">
@@ -320,20 +552,45 @@
   <script src="data/settings-store.js"></script>
   <script>
     /* ======================================================
-     * 公告輪播
+     * 公告輪播 
      * ====================================================== */
     const announcements = [
-      { date: '2026-05-01', type: 'success', text: '網頁全新改版' },
-      { date: '2026-05-01', type: 'info', text: '新增 各項升級 的 藝人-唱聲' },
-      { date: '2026-04-29', type: 'info', text: '新增 各項升級 的 澡堂-技師鍛鍊' },
-      { date: '2026-04-28', type: 'info', text: '新增 各項升級 的 農田-店舖研究' },
+      { date: '2026-05-04', type: 'improve', text: '優化 表單輸入模式，使用鍵盤 ⭡ ⭣ ⭠ ⭢ 快速切換輸入格' },
+      { date: '2026-05-01', type: 'info', text: '網頁全新改版' },
+      { date: '2026-05-01', type: 'feature', text: '新增 各項升級 的 藝人-唱聲' },
+      { date: '2026-04-29', type: 'feature', text: '新增 各項升級 的 澡堂-技師鍛鍊' },
+      { date: '2026-04-28', type: 'feature', text: '新增 各項升級 的 農田-店舖研究' },
       { date: '2026-04-22', type: 'warning', text: '手癢持續增添新功能中！體驗期間恐觸發『暫存遺失』事件，填寫大量數據前請先有心理準備 (╯°▽°)╯ ┻┻' },
     ];
+
     const annColors = {
-      info:    { bg: '#EFF6FF', border: '#BFDBFE', icon: '💬', text: '#1D4ED8' },
-      success: { bg: '#F0FDF4', border: '#86EFAC', icon: '✅', text: '#166534' },
+      // 💬 一般資訊（藍色）
+      info: { bg: '#EFF6FF', border: '#BFDBFE', icon: '💬', text: '#1D4ED8' },
+
+      // ✨ 新功能上線（藍紫色）
+      feature: { bg: '#EEF2FF', border: '#C7D2FE', icon: '✨', text: '#4338CA' },
+
+      // 🛠️ 功能優化（綠色）
+      improve: { bg: '#F0FDF4', border: '#86EFAC', icon: '🛠️', text: '#166534' },
+
+      // 🔧 問題修正（灰色）
+      fix: { bg: '#F9FAFB', border: '#D1D5DB', icon: '🔧', text: '#374151' },
+
+      // ----------------------------------------------------------------------------------
+
+      // 🧪 實驗功能 / Beta（亮紫色）
+      beta: { bg: '#F5F3FF', border: '#C4B5FD', icon: '🧪', text: '#5B21B6' },
+
+      // ⚠️ 警語 / 高注意（黃色）
       warning: { bg: '#FFFBEB', border: '#FCD34D', icon: '⚠️', text: '#92400E' },
+
+      // 🚨 重大風險 / 錯誤提示（紅色）
+      danger: { bg: '#FEF2F2', border: '#FCA5A5', icon: '🚨', text: '#991B1B' },
+
+      // ⏳ 維護中 / 暫時不可用（黃色偏深）
+      maintenance: { bg: '#FFFBEB', border: '#FBBF24', icon: '⏳', text: '#B45309' }
     };
+
     (function initAnnouncements() {
       const item = document.getElementById('announcementItem');
       if (!item || announcements.length === 0) return;
@@ -356,11 +613,11 @@
     // 注意：ACTIVE_CSS 已由 settings-store.js 定義，此處無需重複宣告
 
     function toggleSection(id) {
-      const body   = document.getElementById(id + 'Body');
+      const body = document.getElementById(id + 'Body');
       const toggle = document.getElementById(id + 'Toggle');
-      const open   = body.style.display === 'none';
+      const open = body.style.display === 'none';
       body.style.display = open ? 'block' : 'none';
-      toggle.textContent  = open ? '▲ 收合' : '▼ 展開';
+      toggle.textContent = open ? '▲ 收合' : '▼ 展開';
     }
 
     /* ── 人才面板 ── */
@@ -381,7 +638,7 @@
     }
     function talentRowHtml(name) {
       const info = getTalentInfo(name);
-      const qBtns = [['珍貴','珍'], ['卓越','卓'], ['優秀','優']].map(([q, label]) => {
+      const qBtns = [['珍貴', '珍'], ['卓越', '卓'], ['優秀', '優']].map(([q, label]) => {
         const active = info.quality === q ? ` ${ACTIVE_CSS[q]}` : '';
         return `<button class="quality-btn${active}" title="${q}" onclick="setTalentQuality('${name}','${q}')">${label}</button>`;
       }).join('');
@@ -399,7 +656,7 @@
       const owned = TALENTS.filter(t => getTalentInfo(t.name).owned).length;
       document.getElementById('talentCountBadge').textContent = `（${owned} / ${TALENTS.length} 擁有）`;
     }
-    window.setTalentQuality = function(name, quality) {
+    window.setTalentQuality = function (name, quality) {
       if (!talentState[name]) talentState[name] = {};
       talentState[name].quality = quality;
       saveTalentState();
@@ -413,7 +670,7 @@
       }
       updateCountBadge();
     };
-    window.toggleOwned = function(name) {
+    window.toggleOwned = function (name) {
       if (!talentState[name]) talentState[name] = {};
       talentState[name].owned = !getTalentInfo(name).owned;
       saveTalentState();
@@ -427,15 +684,15 @@
       }
       updateCountBadge();
     };
-    window.setAllOwned = function(owned) {
+    window.setAllOwned = function (owned) {
       TALENTS.forEach(m => { if (!talentState[m.name]) talentState[m.name] = {}; talentState[m.name].owned = owned; });
       saveTalentState(); buildTalentPanel(); filterTalents();
     };
-    window.resetTalentState = function() {
+    window.resetTalentState = function () {
       if (!confirm('確定要重置所有人才設定為預設品質，且全部標記為未擁有嗎？')) return;
       talentState = {}; saveTalentState(); buildTalentPanel(); filterTalents();
     };
-    window.filterTalents = function() {
+    window.filterTalents = function () {
       const kw = document.getElementById('talentSearch').value.trim();
       let shown = 0;
       document.querySelectorAll('#talentGrid .talent-row').forEach(row => {
@@ -463,9 +720,9 @@
       updateArtistCountBadge();
     }
     function artistRowHtml(name) {
-      const info  = getArtistInfo(name);
-      const qCls  = { '珍貴': 'aq-precious', '卓越': 'aq-superior', '優秀': 'aq-good' }[info.quality] || '';
-      const qLbl  = { '珍貴': '珍', '卓越': '卓', '優秀': '優' }[info.quality] || '';
+      const info = getArtistInfo(name);
+      const qCls = { '珍貴': 'aq-precious', '卓越': 'aq-superior', '優秀': 'aq-good' }[info.quality] || '';
+      const qLbl = { '珍貴': '珍', '卓越': '卓', '優秀': '優' }[info.quality] || '';
       const ownedCls = info.owned ? ' is-owned' : '';
       const ownedTxt = info.owned ? '擁\u3000有' : '未擁有';
       return `<div class="talent-row" data-artist-name="${name}">
@@ -481,7 +738,7 @@
       const el = document.getElementById('artistCountBadge');
       if (el) el.textContent = `（${owned} / ${ARTISTS.length} 擁有）`;
     }
-    window.toggleArtistOwned = function(name) {
+    window.toggleArtistOwned = function (name) {
       if (!artistState[name]) artistState[name] = {};
       artistState[name].owned = !getArtistInfo(name).owned;
       saveArtistState();
@@ -495,15 +752,15 @@
       }
       updateArtistCountBadge();
     };
-    window.setAllArtistOwned = function(owned) {
+    window.setAllArtistOwned = function (owned) {
       ARTISTS.forEach(m => { if (!artistState[m.name]) artistState[m.name] = {}; artistState[m.name].owned = owned; });
       saveArtistState(); buildArtistPanel(); filterArtists();
     };
-    window.resetArtistState = function() {
+    window.resetArtistState = function () {
       if (!confirm('確定要重置所有藝人設定，全部標記為未擁有嗎？')) return;
       artistState = {}; saveArtistState(); buildArtistPanel(); filterArtists();
     };
-    window.filterArtists = function() {
+    window.filterArtists = function () {
       const kw = document.getElementById('artistSearch').value.trim();
       let shown = 0;
       document.querySelectorAll('#artistGrid .talent-row').forEach(row => {
@@ -521,10 +778,10 @@
       let totalSize = 0;
       tbody.innerHTML = LS_REGISTRY.map(({ key, label, tool }) => {
         const val = localStorage.getItem(key);
-        const has  = val !== null;
+        const has = val !== null;
         const size = has ? new Blob([val]).size : 0;
         totalSize += size;
-        const sizeStr   = has ? (size >= 1024 ? `${(size/1024).toFixed(1)} KB` : `${size} B`) : '—';
+        const sizeStr = has ? (size >= 1024 ? `${(size / 1024).toFixed(1)} KB` : `${size} B`) : '—';
         const statusCls = has ? 'status-has' : 'status-empty';
         return `<tr>
           <td class="ds-tool">${tool}</td>
@@ -535,29 +792,29 @@
       }).join('');
       const badge = document.getElementById('dataMgmtCountBadge');
       if (badge) {
-        const hasCnt  = LS_REGISTRY.filter(r => localStorage.getItem(r.key) !== null).length;
-        const sizeStr = totalSize >= 1024 ? `${(totalSize/1024).toFixed(1)} KB` : `${totalSize} B`;
+        const hasCnt = LS_REGISTRY.filter(r => localStorage.getItem(r.key) !== null).length;
+        const sizeStr = totalSize >= 1024 ? `${(totalSize / 1024).toFixed(1)} KB` : `${totalSize} B`;
         badge.textContent = hasCnt > 0 ? `（${hasCnt} 項 · ${sizeStr}）` : '（無資料）';
       }
     }
-    window.exportAllData = function() {
+    window.exportAllData = function () {
       const data = {};
       LS_REGISTRY.forEach(({ key }) => { const val = localStorage.getItem(key); if (val !== null) data[key] = val; });
       if (!Object.keys(data).length) { alert('目前沒有任何本機資料可以匯出。'); return; }
       const payload = JSON.stringify({ version: '1', exportedAt: new Date().toISOString(), data }, null, 2);
       const blob = new Blob([payload], { type: 'application/json' });
-      const url  = URL.createObjectURL(blob);
-      const a    = Object.assign(document.createElement('a'), { href: url, download: `mytools-backup-${new Date().toISOString().slice(0,10)}.json` });
+      const url = URL.createObjectURL(blob);
+      const a = Object.assign(document.createElement('a'), { href: url, download: `mytools-backup-${new Date().toISOString().slice(0, 10)}.json` });
       a.click(); URL.revokeObjectURL(url);
     };
-    window.handleImportFile = function(input) {
+    window.handleImportFile = function (input) {
       const file = input.files[0]; if (!file) return;
       const reader = new FileReader();
       reader.onload = e => {
         try {
           const obj = JSON.parse(e.target.result);
           if (!obj || typeof obj.data !== 'object') throw new Error('檔案格式不符，缺少 data 欄位。');
-          const knownKeys   = LS_REGISTRY.map(r => r.key);
+          const knownKeys = LS_REGISTRY.map(r => r.key);
           const unknownKeys = Object.keys(obj.data).filter(k => !knownKeys.includes(k));
           if (unknownKeys.length) {
             if (!confirm(`備份檔包含未知欄位：\n${unknownKeys.join(', ')}\n\n這些欄位將被略過，繼續匯入？`)) { input.value = ''; return; }
@@ -575,7 +832,7 @@
       };
       reader.readAsText(file);
     };
-    window.clearAllData = function() {
+    window.clearAllData = function () {
       const lines = LS_REGISTRY.map(r => `・${r.tool} — ${r.label}`).join('\n');
       if (!confirm(`確定要清空所有本機暫存資料？\n\n將刪除：\n${lines}\n\n此操作無法復原。`)) return;
       LS_REGISTRY.forEach(({ key }) => localStorage.removeItem(key));
