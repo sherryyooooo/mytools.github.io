@@ -298,6 +298,7 @@ window.toggleSection = window.toggleSection || function (id) {
 const LS_REGISTRY = [
   { key: 'ft_talent_state', label: '人才設定(品質/擁有狀態)', tool: '共用設定' },
   { key: 'app_artist_state', label: '藝人設定(擁有狀態)', tool: '共用設定' },
+  { key: 'shared_game_record', label: '遊戲紀錄 — 紀錄日期、能力、收入、備忘', tool: '共用設定' },
   
   { key: 'wmp_myM',         label: '我方影視作品清單',           tool: '作品合作比對器(記憶版)' },
   { key: 'wmp_myA',         label: '我方廣告作品清單',           tool: '作品合作比對器(記憶版)' },
@@ -318,6 +319,6 @@ const LS_REGISTRY = [
   { key: 'as_row_state',            label: '藝人唱聲數值輸入',           tool: '藝人-唱聲' },
   { key: 'as_current_attr',         label: '藝人唱聲 — 上次選擇的屬性', tool: '藝人-唱聲' },
 
-  { key: 'ranking_todo_talent_v1', label: '紀錄日期、能力、備忘、勾選狀態', tool: '榜單代辦清單-人才榜' },
-  { key: 'ranking_todo_income_v1',  label: '紀錄日期、收入、備忘、勾選狀態', tool: '榜單代辦清單-收入榜' },
+  { key: 'ranking_todo_talent_v1', label: '人才榜 — 勾選狀態', tool: '榜單代辦清單' },
+  { key: 'ranking_todo_income_v1',  label: '收入榜 — 勾選狀態', tool: '榜單代辦清單' },
 ];
