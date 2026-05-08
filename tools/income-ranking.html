@@ -363,6 +363,13 @@
 
     const state = loadState();
 
+    window.clearTodos = function () {
+      if (!confirm('確定要清空所有勾選狀態嗎？')) return;
+      state.checks = defaultState().checks;
+      persistState();
+      renderTodo();
+    };
+
     /* ── 代辦清單渲染 ── */
     function renderTodo() {
       const grid = document.getElementById('todoGrid');
