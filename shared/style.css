@@ -18,6 +18,7 @@
   --pink: #FF2D55;
   --yellow: #FFCC00;
   --sw: 248px;
+  --sw-mini: 52px;
   --radius: 14px;
   --shadow: 0 1px 4px rgba(0,0,0,0.08);
 }
@@ -708,19 +709,35 @@ input[type="number"] { -moz-appearance: textfield; }
   border-right: 1px solid var(--border);
   display: flex; flex-direction: column;
   z-index: 200;
-  overflow-y: auto;
+  overflow-y: auto; overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: #E5E5EA transparent;
+  transition: width 0.22s cubic-bezier(.4,0,.2,1);
 }
 .sb-header {
-  padding: 14px 20px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between; gap: 6px;
 }
 .sb-brand {
   display: flex; align-items: center; gap: 8px;
   text-decoration: none; white-space: nowrap; overflow: hidden;
+  flex: 1; min-width: 0;
 }
+/* ── 側欄收合按鈕 ── */
+.sb-mini-btn {
+  flex-shrink: 0;
+  width: 24px; height: 24px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg); color: var(--sub);
+  font-size: 13px; line-height: 1; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+.sb-mini-btn:hover { background: #E5E5EA; color: var(--text); }
 .sb-brand-icon { font-size: 18px; line-height: 1; flex-shrink: 0; }
 .sb-brand-name {
   font-size: 14px; font-weight: 700; color: var(--text);
@@ -785,7 +802,44 @@ input[type="number"] { -moz-appearance: textfield; }
   margin-left: var(--sw);
   flex: 1; min-height: 100vh; min-width: 0;
   display: flex; flex-direction: column;
+  transition: margin-left 0.22s cubic-bezier(.4,0,.2,1);
 }
+
+/* ── Mini (icon-only) 收合狀態 ── */
+body.sb-mini .main-wrap { margin-left: var(--sw-mini); }
+.sidebar.mini { width: var(--sw-mini); overflow: hidden; }
+.sidebar.mini .sb-brand-name,
+.sidebar.mini .sb-footer,
+.sidebar.mini .sb-text,
+.sidebar.mini .sb-cat-btn { display: none; }
+.sidebar.mini .sb-brand { display: none; }
+.sidebar.mini .sb-cat-items { display: block !important; }
+.sidebar.mini .sb-header {
+  padding: 0;
+  border-bottom: none;
+  justify-content: center;
+}
+.sidebar.mini .sb-mini-btn {
+  width: 100%;
+  height: 40px;
+  border-radius: 0;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  background: none;
+  font-size: 16px;
+  color: var(--sub);
+}
+.sidebar.mini .sb-mini-btn:hover { background: #F5F5F7; color: var(--text); }
+.sidebar.mini .sb-nav { padding: 4px 0; }
+.sidebar.mini .sb-home,
+.sidebar.mini .sb-link {
+  padding: 10px 0;
+  justify-content: center;
+  border-left: 3px solid transparent;
+}
+.sidebar.mini .sb-home.active,
+.sidebar.mini .sb-link.active { background: #EFF6FF; border-left-color: var(--blue); }
+.sidebar.mini .sb-icon { font-size: 18px; width: auto; }
 
 /* ── 公告條（首頁頂部）── */
 .ann-bar {
@@ -821,8 +875,9 @@ input[type="number"] { -moz-appearance: textfield; }
   z-index: 150;
 }
 @media (max-width: 768px) {
-  .main-wrap { margin-left: 0 !important; }
+  .main-wrap { margin-left: 0 !important; transition: none !important; }
   .sidebar {
+    width: var(--sw) !important;
     transform: translateX(-100%);
     transition: transform 0.28s cubic-bezier(.4,0,.2,1);
     box-shadow: 4px 0 20px rgba(0,0,0,0.12);
@@ -830,6 +885,7 @@ input[type="number"] { -moz-appearance: textfield; }
   .sidebar.open { transform: translateX(0); }
   .sb-overlay.open { display: block; }
   .sb-ham { display: flex; }
+  .sb-mini-btn { display: none; }
   .page-container { padding-top: 56px !important; }
   .ann-bar { padding-left: 52px; padding-top: 10px; }
 }
@@ -931,6 +987,27 @@ input[type="number"] { -moz-appearance: textfield; }
   transition: border-color 0.15s;
 }
 .sr-memo:focus { border-color: var(--blue); }
+.sr-two-col {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+}
+.sr-col-left  { display: grid; gap: 8px; flex-shrink: 0; }
+.sr-col-left .sr-row { align-items: center; }
+.sr-col-left .sr-num { width: auto; flex: 1; }
+.sr-col-left .sr-date-wrap { flex: 1; }
+.sr-col-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sr-col-right .sr-label { font-size: 13px; font-weight: 600; color: var(--text); }
+.sr-col-right .sr-memo  { flex: 1; min-height: 0; overflow: auto; }
+@media (max-width: 700px) {
+  .sr-two-col { flex-direction: column; }
+  .sr-col-right .sr-memo { min-height: 80px; }
+}
 @media (max-width: 600px) {
   .sr-sub-group { margin-left: 0; border-left: none; padding-left: 0; }
   .sr-num { width: 120px; }

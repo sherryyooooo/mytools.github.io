@@ -172,59 +172,7 @@
     </div>
 
     <!-- 遊戲紀錄（共用：首頁 / 人才榜 / 收入榜）-->
-    <div class="settings-card">
-      <div class="settings-card-header" onclick="toggleSection('gameRecord')">
-        <div class="settings-card-header-left">
-          <span>📊 遊戲紀錄</span>
-        </div>
-        <span class="settings-card-toggle" id="gameRecordToggle">▼ 展開</span>
-      </div>
-      <div id="gameRecordBody" style="display:none">
-        <div class="settings-card-body sr-body">
-          <div class="sr-row">
-            <label class="sr-label">紀錄日期</label>
-            <div class="sr-date-wrap">
-              <input type="date" id="srDate" class="sr-input" oninput="saveSharedRecord()">
-              <button class="sr-today-btn" onclick="srSetToday()">今日</button>
-            </div>
-          </div>
-          <div class="sr-row">
-            <label class="sr-label">最高能力</label>
-            <input type="number" id="srAbility" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
-          </div>
-          <div class="sr-row">
-            <label class="sr-label">最高收入</label>
-            <input type="number" id="srMaxIncome" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
-          </div>
-          <div class="sr-sub-group">
-            <div class="sr-row">
-              <label class="sr-label">店鋪總收入</label>
-              <input type="number" id="srStore" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
-            </div>
-            <div class="sr-row">
-              <label class="sr-label">作品總收入</label>
-              <input type="number" id="srWork" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
-            </div>
-            <div class="sr-row">
-              <label class="sr-label">關卡收入</label>
-              <input type="number" id="srStage" class="sr-input sr-num" min="0" placeholder="" oninput="saveSharedRecord()">
-            </div>
-            <div class="sr-row">
-              <label class="sr-label">未加成收入<span class="sr-auto-badge">自動</span></label>
-              <input type="number" id="srBase" class="sr-input sr-num" readonly tabindex="-1">
-            </div>
-          </div>
-          <div class="sr-row sr-memo-row">
-            <label class="sr-label">備忘文字</label>
-            <textarea id="srMemo" class="sr-memo" rows="3" placeholder="本次榜單備忘事項…" oninput="saveSharedRecord()"></textarea>
-          </div>
-        </div>
-        <div class="autosave-hint">
-          <span class="autosave-dot"></span>
-          <span>資料三頁共用 — 在首頁或收入榜修改，此頁即時同步</span>
-        </div>
-      </div>
-    </div>
+    <div id="gameRecordContainer"></div>
 
     <div class="upload-card">
       <div style="margin-bottom:12px">
@@ -248,6 +196,7 @@
   </div>
 
   <script src="../data/settings-store.js"></script>
+  <script src="../shared/game-record.js"></script>
   <script>
     /* ── 代辦項目定義 ─────────────────────────────────────
      * items: null  → standalone 單項卡（無子項）
@@ -483,6 +432,7 @@
       toggle.textContent = open ? '▲ 收合' : '▼ 展開';
     }
 
+    renderGameRecordCard({ collapsed: true });
     loadSharedRecord();
     renderTodo();
   </script>

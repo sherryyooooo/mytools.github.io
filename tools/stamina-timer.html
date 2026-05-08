@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>體力恢復時間表</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── 資料表格 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .data-table thead th {
+      background: var(--bg);
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table thead th.num { text-align: right; }
+    .data-table thead th.center { text-align: center; }
+
+    .data-table tbody td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+    .data-table tbody td.num-cell  { text-align: right; }
+    .data-table tbody td.center-cell { text-align: center; }
+
+    /* 項目名稱欄 */
+    .data-table tbody td.name-cell { font-weight: 600; min-width: 80px; }
+
+    /* 輸入框欄 */
+    .data-table tbody td.input-cell { width: 110px; }
+
+    /* 時間顯示欄 */
+    .data-table tbody td.time-cell {
+      font-variant-numeric: tabular-nums;
+      min-width: 90px;
+    }
+    .data-table tbody td.remain-cell {
+      font-variant-numeric: tabular-nums;
+      font-weight: 600;
+      min-width: 100px;
+    }
+
+    /* ── 體力提醒高亮 ── */
+    /* ≥ 67%：即將滿體（黃） */
+    tr.row-warn td                    { background: #FFFBEB !important; }
+    tr.row-warn td.seq-cell           { background: #FEF3C7 !important; border-left: 3px solid #F59E0B; }
+    tr.row-warn td.remain-cell        { color: #92400E; }
+    /* ≥ 83%：接近滿體（紅） */
+    tr.row-danger td                  { background: #FEF2F2 !important; }
+    tr.row-danger td.seq-cell         { background: #FFE4E4 !important; border-left: 3px solid #EF4444; }
+    tr.row-danger td.remain-cell      { color: #991B1B; }
+
+    /* ── 序號欄 ── */
+    .data-table tbody td.seq-cell {
+      font-size: 11px;
+      color: var(--sub);
+      text-align: center;
+      white-space: nowrap;
+      background: var(--bg);
+      width: 36px;
+    }
+
+    /* ── 已滿體 badge ── */
+    .badge-full {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      background: #DCFCE7;
+      color: #166534;
+      white-space: nowrap;
+    }
+
+    /* ── 未輸入 muted ── */
+    .muted { color: var(--sub); }
+
+    /* ── 分類頁籤 ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-tab.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .filter-tab:hover:not(.active) {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── 總結區塊 ── */
+    :root {
+      --best-bg:     #FFFBEB;
+      --best-border: #F59E0B;
+      --best-fg:     #92400E;
+    }
+    .input-box {
+      background: var(--bg);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+    .box-header {
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      background: var(--best-bg);
+      color: var(--best-fg);
+    }
+    .best-body {
+      padding: 10px 12px;
+      min-height: 56px;
+    }
+    .banner-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .banner-switch {
+      font-size: 12px;
+      color: var(--sub);
+      line-height: 1.8;
+    }
+    .banner-switch strong { color: var(--text); font-size: 14px; }
+
+    /* ── 關注勾選欄 ── */
+    .data-table tbody td.chk-cell {
+      text-align: center;
+      width: 44px;
+      padding: 4px 0;
+    }
+    .chk-cell input[type="checkbox"] {
+      width: 15px;
+      height: 15px;
+      accent-color: var(--blue);
+      cursor: pointer;
+      margin: 0;
+    }
+
+    @media (max-width: 640px) {
+      .col-seq    { display: none; }
+      .col-total  { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <!-- 標題 -->
+  <div class="tool-page-header">
+    <h1>⚡ 體力恢復時間表</h1>
+    <p>輸入當前體力，即時顯示預計滿體時間與剩餘倒數；剩餘時間每分鐘自動更新</p>
+  </div>
+
+  <!-- 使用說明 -->
+  <div class="guide-card">
+    <div class="guide-header" onclick="toggleGuide()">
+      <span>📖 使用說明</span>
+      <span class="guide-toggle" id="guideToggle">▼ 展開</span>
+    </div>
+    <div class="guide-body" id="guideBody" style="display:none">
+      <div class="guide-steps">
+        <div class="guide-step">
+          <div class="step-num">1</div>
+          <div class="step-text"><strong>切換分類</strong><br>
+            點選上方頁籤可在「全部」、「日常」、「活動」之間切換。<strong>日常</strong>為遊戲中固定的日常項目體力值；<strong>活動</strong>為期間限定活動的體力值。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">2</div>
+          <div class="step-text"><strong>填寫當前體力</strong><br>
+            依遊戲當下各項目的<strong>當前體力</strong>填入對應欄位，系統立即計算預計滿體時間。空白欄位不參與計算。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">3</div>
+          <div class="step-text"><strong>解讀時間欄位</strong><br>
+            <strong>預計滿體</strong>：依輸入當下一次性計算，不隨時間變動，作為決策參考。<br>
+            <strong>剩餘時間</strong>：每分鐘自動更新倒數，反映實際剩餘時間。</div>
+        </div>
+        <div class="guide-step">
+          <div class="step-num">4</div>
+          <div class="step-text"><strong>顏色提醒</strong><br>
+            <span style="display:inline-block;padding:1px 8px;border-radius:4px;background:#FFFBEB;color:#92400E;font-size:11px;font-weight:600;border-left:3px solid #F59E0B">黃底</span>
+            體力 ≥ 67%，即將滿體，請留意。<br>
+            <span style="display:inline-block;padding:1px 8px;border-radius:4px;background:#FEF2F2;color:#991B1B;font-size:11px;font-weight:600;border-left:3px solid #EF4444;margin-top:4px">紅底</span>
+            體力 ≥ 83%，接近滿體，建議優先處理。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 操作區塊 -->
+  <div class="upload-card">
+    <div class="input-box">
+      <div class="box-header">⏱ 最近滿體總覽</div>
+      <div class="best-body" id="summaryBody">
+        <div class="banner-title" style="color:var(--sub)">—</div>
+        <div class="banner-switch">尚無進行中的體力計算</div>
+      </div>
+    </div>
+    <div class="clear-action-row">
+      <button class="clear-data-btn toggle" onclick="clearCheckedItems()">勾選項目體全清</button>
+      <button class="clear-data-btn danger" onclick="clearAll()">清除所有輸入</button>
+    </div>
+  </div>
+
+  <!-- 分類頁籤 -->
+  <div class="filter-tabs" id="filterTabs"></div>
+
+  <!-- 表格卡片 -->
+  <div class="input-card">
+    <div class="input-card-header">
+      <span>各活動體力狀態</span>
+      <span style="font-size:12px;font-weight:400;color:var(--sub)">填入當前體力後即時計算</span>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <colgroup>
+          <col class="col-seq"   style="width:40px">
+          <col                   style="width:120px">
+          <col class="num"       style="width:110px">
+          <col class="num"       style="width:80px">
+          <col class="col-total" style="width:90px">
+          <col                   style="width:44px">     <!-- 關注 -->
+          <col                   style="width:110px">
+          <col                   style="width:100px">
+          <col                   style="width:110px">
+        </colgroup>
+        <thead>
+          <tr>
+            <th class="col-seq center">序</th>
+            <th>活動</th>
+            <th class="num">回復速度</th>
+            <th class="num">上限</th>
+            <th class="col-total num">體滿時間</th>
+            <th class="center">關注</th>
+            <th class="center">當前體力</th>
+            <th class="num">預計滿體</th>
+            <th class="num">剩餘時間</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <!-- 說明行 -->
+    <div class="hint-row">
+      <span class="hint-dot" style="background:#FFFBEB;border:1.5px solid #F59E0B"></span>
+      <span>體力 ≥ 67%：即將滿，請留意</span>
+      <span class="hint-dot" style="background:#FEF2F2;border:1.5px solid #EF4444;margin-left:10px"></span>
+      <span>體力 ≥ 83%：接近滿體，建議優先處理</span>
+      <span style="margin-left:12px;color:#aaa">｜ 剩餘時間每分鐘自動更新</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="../data/stamina-timer-data.js"></script>
+<script>
+/* =====================================================
+ * 渲染邏輯
+ * ===================================================== */
+
+/* ── 分類頁籤定義 ── */
+const FILTER_TABS = [
+  { id: 'all',   label: '全部' },
+  { id: 'daily', label: '日常' },
+  { id: 'event', label: '活動' },
+];
+let currentCat = 'all';
+
+/* ── 格式化分鐘 → n 小時 m 分 ── */
+function formatDuration(min) {
+  min = Math.max(0, Math.round(min));
+  if (min === 0) return '已滿';
+  const h = Math.floor(min / 60);
+  const m = min % 60;
+  if (h === 0) return `${m} 分`;
+  if (m === 0) return `${h} 小時`;
+  return `${h} 小時 ${m} 分`;
+}
+
+/* ── 格式化 Date → HH:MM ── */
+function formatTime(date) {
+  return date.toLocaleTimeString('zh-TW', {
+    hour: '2-digit', minute: '2-digit', hour12: false
+  });
+}
+
+/* ── 每列的計算狀態（以原始索引為 key，切換頁籤後保留）── */
+const stateMap  = {};   // index → { fullTime: Date|null, ratio: number, inputVal: string } | null
+const checkedSet = new Set();  // 關注項目的 index 集合
+
+/* ── 切換關注勾選 ── */
+function toggleCheck(i, checked) {
+  if (checked) checkedSet.add(i);
+  else checkedSet.delete(i);
+}
+
+/* ── 勾選項目體全清（帶入 0）── */
+function clearCheckedItems() {
+  if (checkedSet.size === 0) { alert('尚未勾選任何項目'); return; }
+  checkedSet.forEach(i => {
+    const inp = document.getElementById(`inp-${i}`);
+    if (inp) { inp.value = '0'; handleInput(i, '0'); }
+  });
+}
+
+/* ── 更新「最近滿體總覽」區塊 ── */
+function updateSummary() {
+  const bodyEl = document.getElementById('summaryBody');
+  if (!bodyEl) return;
+
+  const now = new Date();
+  const coming = [];
+  STAMINA_DATA.forEach((item, i) => {
+    const s = stateMap[i];
+    if (!s) return;
+    coming.push({
+      item,
+      fullTime: s.fullTime,
+      isFull:   !s.fullTime,
+      diffMin:  s.fullTime ? (s.fullTime - now) / 60000 : 0
+    });
+  });
+
+  if (coming.length === 0) {
+    bodyEl.innerHTML =
+      '<div class="banner-title" style="color:var(--sub)">—</div>' +
+      '<div class="banner-switch">尚無進行中的體力計算</div>';
+    return;
+  }
+
+  const fullItems  = coming.filter(c => c.isFull);
+  const countdowns = coming.filter(c => !c.isFull).sort((a, b) => a.diffMin - b.diffMin);
+
+  let titleHtml = '', switchHtml = '';
+
+  if (countdowns.length > 0) {
+    const first = countdowns[0];
+    titleHtml = `最近 <strong>${formatTime(first.fullTime)}</strong>（${formatDuration(first.diffMin)}後）— <strong>${first.item.name}</strong>`;
+    const lines = [
+      ...countdowns.slice(1).map(c => {
+        const d = Math.max(0, (c.fullTime - now) / 60000);
+        return `· ${formatTime(c.fullTime)}（${formatDuration(d)}後）${c.item.name}`;
+      }),
+      ...fullItems.map(c => `· <span style="color:#166534;font-weight:600">已滿</span>　${c.item.name}`)
+    ];
+    switchHtml = lines.join('<br>');
+  } else {
+    titleHtml = '所有進行中項目均已滿體 🎉';
+    switchHtml = fullItems.map(c =>
+      `· <span style="color:#166534;font-weight:600">已滿</span>　${c.item.name}`
+    ).join('<br>');
+  }
+
+  bodyEl.innerHTML =
+    `<div class="banner-title">${titleHtml}</div>` +
+    (switchHtml ? `<div class="banner-switch" style="margin-top:6px">${switchHtml}</div>` : '');
+}
+
+/* ── 建立分類頁籤列 ── */
+function buildTabs() {
+  const el = document.getElementById('filterTabs');
+  el.innerHTML = FILTER_TABS.map(tab =>
+    `<button class="filter-tab${tab.id === currentCat ? ' active' : ''}"
+             onclick="setFilter('${tab.id}')">${tab.label}</button>`
+  ).join('');
+}
+
+/* ── 切換分類 ── */
+function setFilter(cat) {
+  currentCat = cat;
+  document.querySelectorAll('.filter-tab').forEach((btn, i) => {
+    btn.classList.toggle('active', FILTER_TABS[i].id === cat);
+  });
+  buildTable();
+}
+
+/* ── 建立表格（依 currentCat 過濾）── */
+function buildTable() {
+  const tbody = document.getElementById('tableBody');
+  const rows = STAMINA_DATA
+    .map((item, i) => ({ item, i }))
+    .filter(({ item }) => currentCat === 'all' || item.cat === currentCat);
+
+  tbody.innerHTML = rows.map(({ item, i }) => {
+    const totalMin  = item.recoverPer * item.max;
+    const savedVal  = stateMap[i]?.inputVal ?? '';
+    const isChecked = checkedSet.has(i) ? ' checked' : '';
+    return `<tr id="row-${i}">
+      <td class="seq-cell col-seq">${i + 1}</td>
+      <td class="name-cell">${item.name}</td>
+      <td class="num-cell">${item.recoverPer} 分鐘<span style="color:var(--sub);font-size:12px"> / 體</span></td>
+      <td class="num-cell">${item.max}</td>
+      <td class="num-cell col-total">${formatDuration(totalMin)}</td>
+      <td class="chk-cell">
+        <input type="checkbox" id="chk-${i}"${isChecked} onchange="toggleCheck(${i}, this.checked)">
+      </td>
+      <td class="input-cell center-cell">
+        <input type="number" class="num-input" style="width:72px;text-align:center"
+               id="inp-${i}" min="0" max="${item.max}" placeholder="—"
+               value="${savedVal}"
+               oninput="handleInput(${i}, this.value)">
+      </td>
+      <td class="num-cell time-cell" id="time-${i}"><span class="muted">—</span></td>
+      <td class="num-cell remain-cell" id="remain-${i}"><span class="muted">—</span></td>
+    </tr>`;
+  }).join('');
+
+  // 還原已有狀態的列的顯示
+  rows.forEach(({ i }) => { if (stateMap[i]) updateRow(i); });
+}
+
+/* ── 處理輸入 ── */
+function handleInput(i, value) {
+  const item = STAMINA_DATA[i];
+
+  if (value === '') {
+    stateMap[i] = null;
+    updateRow(i);
+    updateSummary();
+    return;
+  }
+
+  const current = Math.min(Number(value), item.max);
+
+  if (current >= item.max) {
+    stateMap[i] = { fullTime: null, ratio: 1, inputVal: value };
+    updateRow(i);
+    updateSummary();
+    return;
+  }
+
+  const now = new Date();
+  const neededMin = (item.max - current) * item.recoverPer;
+  const fullTime = new Date(now.getTime() + neededMin * 60000);
+  stateMap[i] = { fullTime, ratio: current / item.max, inputVal: value };
+  updateRow(i);
+  updateSummary();
+}
+
+/* ── 更新單列顯示 ── */
+function updateRow(i) {
+  const state    = stateMap[i];
+  const timeEl   = document.getElementById(`time-${i}`);
+  const remainEl = document.getElementById(`remain-${i}`);
+  const row      = document.getElementById(`row-${i}`);
+
+  if (!row) return; // 列不在當前分類中，略過
+
+  row.classList.remove('row-warn', 'row-danger');
+
+  if (!state) {
+    timeEl.innerHTML   = '<span class="muted">—</span>';
+    remainEl.innerHTML = '<span class="muted">—</span>';
+    return;
+  }
+
+  /* 已滿體 */
+  if (!state.fullTime) {
+    timeEl.innerHTML   = '<span class="muted">—</span>';
+    remainEl.innerHTML = '<span class="badge-full">已滿</span>';
+    return;
+  }
+
+  /* 預計滿體時間（靜態） */
+  timeEl.textContent = formatTime(state.fullTime);
+
+  /* 剩餘時間（動態） */
+  const now     = new Date();
+  const diffMin = (state.fullTime - now) / 60000;
+  remainEl.textContent = diffMin <= 0 ? '已滿' : formatDuration(diffMin);
+
+  /* 顏色警示 */
+  if (state.ratio >= 0.83) {
+    row.classList.add('row-danger');
+  } else if (state.ratio >= 0.67) {
+    row.classList.add('row-warn');
+  }
+}
+
+/* ── 每分鐘 tick 更新所有剩餘時間 ── */
+function tick() {
+  Object.keys(stateMap).forEach(i => {
+    if (stateMap[i]) updateRow(Number(i));
+  });
+  updateSummary();
+}
+setInterval(tick, 60000);
+
+/* ── 清除所有輸入 ── */
+function clearAll() {
+  STAMINA_DATA.forEach((_, i) => {
+    const inp = document.getElementById(`inp-${i}`);
+    if (inp) inp.value = '';
+    stateMap[i] = null;
+    updateRow(i);
+  });
+  updateSummary();
+}
+
+/* ── 使用說明展開 / 收合 ── */
+function toggleGuide() {
+  const body   = document.getElementById('guideBody');
+  const toggle = document.getElementById('guideToggle');
+  const open   = body.style.display === 'none';
+  body.style.display = open ? 'block' : 'none';
+  toggle.textContent = open ? '▲ 收合' : '▼ 展開';
+}
+
+/* ── 初始化 ── */
+buildTabs();
+buildTable();
+updateSummary();
+</script>
+</body>
+</html>

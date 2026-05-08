@@ -23,12 +23,4 @@ const SINGING_SUBS = [
   { key: 'sub2', label: '歌透窗紗' },
 ];
 
-/* ── 藝人對應人才（key = 藝人名稱, value = 人才名稱陣列）──
- * 待補：一個藝人對應的關聯人才請在此填入
- * 例：'古麗': ['剛毅', '武松'],
- * ─────────────────────────────────────────────────── */
-const SINGING_TALENT_MAP = {
-  // 範例（請替換成實際資料）：
-  // '古麗':     ['剛毅', '武松'],
-  // '秋菊':     ['宋江', '白素貞'],
-};
+/* SINGING_TALENT_MAP 已移除，請統一維護 data/talent-artist-data.js 的 TALENT_ARTIST_MAP */

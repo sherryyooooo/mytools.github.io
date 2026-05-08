@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>人才資訊</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* ── 表格 ── */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      min-width: 480px;
+    }
+    .data-table thead th {
+      background: #fafafa;
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+    }
+    .data-table tbody td {
+      padding: 6px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .data-table tbody tr:last-child td { border-bottom: none; }
+
+    .seq-cell {
+      font-size: 11px;
+      color: var(--sub);
+      text-align: center;
+      white-space: nowrap;
+      background: var(--bg);
+      width: 36px;
+    }
+    .name-cell {
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--text);
+      white-space: nowrap;
+      width: 80px;
+    }
+    .quality-cell {
+      white-space: nowrap;
+      width: 60px;
+    }
+    .attr-cell {
+      white-space: nowrap;
+      width: 36px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--sub);
+    }
+    .artist-cell {
+      padding: 4px 12px;
+    }
+
+    /* ── 藝人徽章容器 ── */
+    .talent-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 26px;
+    }
+
+    /* ── 隱藏非擁有列 ── */
+    tr.row-not-owned.hide-not-owned { display: none; }
+
+    /* ── 空狀態提示 ── */
+    .empty-hint {
+      text-align: center;
+      padding: 32px 0;
+      color: var(--sub);
+      font-size: 14px;
+    }
+
+    /* ── 計數徽章 ── */
+    .count-badge {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--sub);
+    }
+  </style>
+</head>
+<body>
+
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <div class="tool-page-header">
+    <h1>📋 人才資訊</h1>
+    <p>查看所有人才及其關聯藝人，藝人徽章顏色代表品質，未擁有呈灰色</p>
+  </div>
+
+  <!-- 工具區 -->
+  <div class="upload-card">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+      <span class="section-title">工具區</span>
+    </div>
+    <div class="clear-action-row" style="margin-top:0;padding-top:12px">
+      <button class="clear-data-btn toggle" id="btnOnlyOwned" onclick="toggleOnlyOwned()">只顯示已擁有</button>
+      <a class="clear-data-btn" href="../index.html" style="text-decoration:none;text-align:center">⚙️ 設定人才 / 藝人</a>
+    </div>
+  </div>
+
+  <!-- 表格 -->
+  <div class="input-card">
+    <div class="input-card-header">
+      <span>人才列表</span>
+      <span class="count-badge" id="countBadge">載入中…</span>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table id="dataTable" class="data-table">
+        <colgroup>
+          <col style="width:36px">   <!-- 序號 -->
+          <col style="width:80px">   <!-- 人才名稱 -->
+          <col style="width:60px">   <!-- 品質 -->
+          <col style="width:36px">   <!-- 屬性 -->
+          <col>                      <!-- 相關藝人 -->
+        </colgroup>
+        <thead>
+          <tr>
+            <th>No.</th>
+            <th>人才名稱</th>
+            <th>品質</th>
+            <th>屬性</th>
+            <th>相關藝人</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <div class="empty-hint" id="emptyHint" style="display:none">
+        尚未擁有任何人才，請前往「⚙️ 設定人才 / 藝人」標記擁有狀態。
+      </div>
+    </div>
+
+    <div class="hint-row">
+      <span class="hint-dot" style="background:#FEF9C3;border:1px solid #FDE68A"></span><span>珍貴</span>
+      <span class="hint-dot" style="background:#F3E8FF;border:1px solid #DDD6FE;margin-left:8px"></span><span>卓越</span>
+      <span class="hint-dot" style="background:#DBEAFE;border:1px solid #BFDBFE;margin-left:8px"></span><span>優秀</span>
+      <span class="hint-dot" style="background:#F3F4F6;border:1px solid #D1D5DB;margin-left:8px"></span><span>未擁有</span>
+    </div>
+  </div>
+
+</div>
+
+<script src="../data/settings-store.js"></script>
+<script src="../data/talent-artist-data.js"></script>
+<script>
+  /* ── 建立人才 → 關聯藝人 查詢表 ── */
+  const talentArtistLookup = {};
+  TALENT_ARTIST_MAP.forEach(({ talent, artists }) => {
+    talentArtistLookup[talent] = artists;
+  });
+
+  /* ── 藝人徽章 HTML（用藝人品質與擁有狀態著色）── */
+  function renderArtistBadgesHtml(artistNames) {
+    if (!artistNames || artistNames.length === 0) return '<span style="color:var(--sub);font-size:12px">—</span>';
+    const infos = artistNames.map(n => getArtistInfo(n)).filter(Boolean);
+    infos.sort((a, b) => {
+      if (a.owned !== b.owned) return a.owned ? -1 : 1;
+      return (QUALITY_ORDER[a.quality] ?? 99) - (QUALITY_ORDER[b.quality] ?? 99);
+    });
+    return infos.map(a => {
+      const cls = a.owned ? (QUALITY_CSS[a.quality] || 'tq-none') : 'tq-none';
+      return `<span class="talent-badge ${cls}">${a.name}</span>`;
+    }).join('');
+  }
+
+  /* ── 是否只顯示已擁有 ── */
+  let onlyOwned = false;
+
+  window.toggleOnlyOwned = function () {
+    onlyOwned = !onlyOwned;
+    const btn = document.getElementById('btnOnlyOwned');
+    btn.classList.toggle('is-active', onlyOwned);
+    btn.textContent = onlyOwned ? '✓ 只顯示已擁有' : '只顯示已擁有';
+    applyFilter();
+  };
+
+  function applyFilter() {
+    const table = document.getElementById('dataTable');
+    const rows  = table.querySelectorAll('tbody tr');
+    rows.forEach(tr => {
+      if (onlyOwned) {
+        tr.classList.toggle('row-not-owned', !tr.dataset.owned);
+        if (!tr.dataset.owned) tr.style.display = 'none';
+        else tr.style.display = '';
+      } else {
+        tr.style.display = '';
+      }
+    });
+    updateCount();
+  }
+
+  function updateCount() {
+    const table   = document.getElementById('dataTable');
+    const allRows = table.querySelectorAll('tbody tr');
+    const visible = [...allRows].filter(tr => tr.style.display !== 'none').length;
+    const badge   = document.getElementById('countBadge');
+    if (badge) badge.textContent = `顯示 ${visible} / ${allRows.length} 筆`;
+
+    const empty = document.getElementById('emptyHint');
+    if (empty) empty.style.display = (visible === 0) ? 'block' : 'none';
+  }
+
+  /* ── 建立表格 ── */
+  function buildTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    TALENTS.forEach((talent, idx) => {
+      const info      = getTalentInfo(talent.name);   // { name, quality, owned }
+      const relArtists = talentArtistLookup[talent.name] || [];
+
+      const tr = document.createElement('tr');
+      if (info && info.owned) tr.dataset.owned = '1';
+
+      // 序號
+      const tdSeq = document.createElement('td');
+      tdSeq.className = 'seq-cell';
+      tdSeq.textContent = idx + 1;
+      tr.appendChild(tdSeq);
+
+      // 人才名稱
+      const tdName = document.createElement('td');
+      tdName.className = 'name-cell';
+      tdName.textContent = talent.name;
+      tr.appendChild(tdName);
+
+      // 品質
+      const tdQ = document.createElement('td');
+      tdQ.className = 'quality-cell';
+      const q = info ? info.quality : talent.defaultQuality;
+      const qCls = QUALITY_CSS[q] || 'tq-none';
+      tdQ.innerHTML = `<span class="talent-badge ${qCls}">${q}</span>`;
+      tr.appendChild(tdQ);
+
+      // 屬性
+      const tdAttr = document.createElement('td');
+      tdAttr.className = 'attr-cell';
+      tdAttr.textContent = talent.attr || '—';
+      tr.appendChild(tdAttr);
+
+      // 相關藝人
+      const tdArtists = document.createElement('td');
+      tdArtists.className = 'artist-cell';
+      tdArtists.innerHTML = `<div class="talent-badges">${renderArtistBadgesHtml(relArtists)}</div>`;
+      tr.appendChild(tdArtists);
+
+      tbody.appendChild(tr);
+    });
+
+    applyFilter();
+  }
+
+  buildTable();
+</script>
+
+</body>
+</html>

@@ -30,6 +30,7 @@
         { icon: '⚖️', title: '作品合作比對器', href: `${base}tools/work-matcher.html` },
         { icon: '⚖️', title: '作品比對(記憶版)', href: `${base}tools/work-matcher-pro.html` },
         { icon: '🛍️', title: '兌換推薦指南', href: `${base}tools/exchange-guide.html` },
+        { icon: '⚡', title: '體力恢復時間表', href: `${base}tools/stamina-timer.html` },
       ]
     },
     {
@@ -47,12 +48,18 @@
         { icon: '💰', title: '收入榜', href: `${base}tools/income-ranking.html` },
       ]
     },
+    {
+      id: 'info', label: '角色資訊(緩慢更新)', tools: [
+        { icon: '📋', title: '人才資訊', href: `${base}tools/talent-info.html` },
+        { icon: '🎭', title: '藝人資訊', href: `${base}tools/artist-info.html` },
+      ]
+    },
   ];
 
   /* ── 建立側欄 HTML ── */
   const LS_COLLAPSE = 'sb_nav_collapse';
 
-  let navHtml = `<a class="sb-link sb-home" href="${base}index.html">
+  let navHtml = `<a class="sb-link sb-home" href="${base}index.html" title="首頁 · 設定中心">
     <span class="sb-icon">⚙️</span>
     <span class="sb-text">首頁 · 設定中心</span>
   </a>`;
@@ -64,7 +71,7 @@
       </button>
       <div class="sb-cat-items">`;
     cat.tools.forEach(t => {
-      navHtml += `<a class="sb-link" href="${t.href}">
+      navHtml += `<a class="sb-link" href="${t.href}" title="${t.title}">
         <span class="sb-icon">${t.icon}</span>
         <span class="sb-text">${t.title}</span>
       </a>`;
@@ -78,6 +85,7 @@
       <span class="sb-brand-icon">🕹️</span>
       <span class="sb-brand-name">醬⨉時光小工具</span>
     </a>
+    <button class="sb-mini-btn" id="sb-mini-btn" onclick="window._sbToggleMini()" title="收合側欄">«</button>
   </div>
   <nav class="sb-nav">${navHtml}</nav>
   <div class="sb-footer">Copyright &copy; 2026 醬×時光小工具<br>轉載請註明出處</div>
@@ -123,7 +131,30 @@
     const sidebar = document.getElementById('site-sidebar');
     ham.onclick = () => { sidebar.classList.toggle('open'); overlay.classList.toggle('open'); };
     overlay.onclick = () => { sidebar.classList.remove('open'); overlay.classList.remove('open'); };
+
+    /* 5. 還原 mini 收合狀態 */
+    const miniBtn = document.getElementById('sb-mini-btn');
+    if (localStorage.getItem('sb_mini') === '1') {
+      sidebar.classList.add('mini');
+      document.body.classList.add('sb-mini');
+      if (miniBtn) miniBtn.textContent = '»';
+      if (miniBtn) miniBtn.title = '展開側欄';
+    }
   });
+
+  /* ── 收合/展開整個側欄 ── */
+  window._sbToggleMini = function () {
+    const sidebar = document.getElementById('site-sidebar');
+    const miniBtn = document.getElementById('sb-mini-btn');
+    if (!sidebar) return;
+    const isMini = sidebar.classList.toggle('mini');
+    document.body.classList.toggle('sb-mini', isMini);
+    if (miniBtn) {
+      miniBtn.textContent = isMini ? '»' : '«';
+      miniBtn.title = isMini ? '展開側欄' : '收合側欄';
+    }
+    localStorage.setItem('sb_mini', isMini ? '1' : '0');
+  };
 
   /* ── 折疊/展開大類（全域函式，onclick 需在 DOMContentLoaded 前存在）── */
   window._sbToggleCat = function (id) {

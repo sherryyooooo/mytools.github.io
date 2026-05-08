@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- ★ 改成工具名稱 -->
+  <title>頁籤資料表範例</title>
+  <link rel="stylesheet" href="../shared/style.css">
+  <style>
+    /* =====================================================
+     * 本頁專用樣式（頁籤 + 表格）
+     * 已使用 shared/style.css 的共用 class，以下僅補充
+     * 頁籤與資料表格本頁需要的樣式。
+     * ===================================================== */
+
+    /* ── 頁籤列 ── */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .filter-tab {
+      padding: 7px 16px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--card);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--sub);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-tab.active {
+      background: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+    }
+    .filter-tab:hover:not(.active) {
+      border-color: var(--blue);
+      color: var(--blue);
+    }
+
+    /* ── 表格外框 ── */
+    .table-wrap {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .table-scroll {
+      overflow-x: auto;
+    }
+
+    /* ── 資料表格 ── */
+    table.tab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    table.tab-table th {
+      background: var(--bg);
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sub);
+      text-align: left;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--border);
+      white-space: nowrap;
+    }
+    table.tab-table th.align-right  { text-align: right; }
+    table.tab-table th.align-center { text-align: center; }
+
+    table.tab-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    table.tab-table tbody tr:last-child td { border-bottom: none; }
+    table.tab-table td.align-right  { text-align: right;  font-variant-numeric: tabular-nums; }
+    table.tab-table td.align-center { text-align: center; }
+
+    /* 「名稱」欄預設粗體 */
+    table.tab-table td:first-child { font-weight: 600; }
+
+    /* ── 徽章（badge:true 欄位） ── */
+    .cell-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* ── 空資料提示 ── */
+    .empty-row td {
+      text-align: center;
+      padding: 32px;
+      color: var(--sub);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- header.js 自動注入側欄，並將 .page-container 包入 .main-wrap -->
+<script src="../shared/header.js"></script>
+
+<div class="page-container">
+
+  <!-- ① 工具標題 -->
+  <div class="tool-page-header">
+    <!-- ★ 改成對應 emoji 與工具名稱 -->
+    <h1>📋 頁籤資料表範例</h1>
+    <!-- ★ 一行功能說明 -->
+    <p>頁籤切換 + 資料表顯示範本，修改資料檔即可套用至新表格</p>
+  </div>
+
+  <!-- ② 頁籤列（由 JS 自動生成） -->
+  <div class="filter-tabs" id="filterTabs"></div>
+
+  <!-- ③ 資料表格（由 JS 自動生成） -->
+  <div class="table-wrap">
+    <div class="table-scroll">
+      <table class="tab-table">
+        <thead id="tableHead"></thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- ★ 換成對應的資料檔路徑 -->
+<script src="../data/_template-tab-table-data.js"></script>
+<script>
+  /* =====================================================
+   * 渲染邏輯 — 以下一般不需修改
+   * 讀取 _template-tab-table-data.js 定義的
+   *   TABS、COLUMNS、ROWS、BADGE_STYLES（選填）
+   * 自動產生頁籤列與表格
+   * ===================================================== */
+
+  /* ── 目前選中的頁籤 ── */
+  let activeTabId = TABS[0].id;
+
+  /* ── 建立頁籤列 ── */
+  function buildTabs() {
+    const el = document.getElementById('filterTabs');
+    el.innerHTML = TABS.map(tab =>
+      `<button class="filter-tab${tab.id === activeTabId ? ' active' : ''}"
+               onclick="setTab('${tab.id}')">${tab.label}</button>`
+    ).join('');
+  }
+
+  /* ── 建立表頭（只需建一次） ── */
+  function buildHead() {
+    const el = document.getElementById('tableHead');
+    const alignClass = col => col.align ? ` align-${col.align}` : '';
+    el.innerHTML = `<tr>${
+      COLUMNS.map(col =>
+        `<th class="${alignClass(col).trim()}"${col.width ? ` style="min-width:${col.width}"` : ''}>${col.label}</th>`
+      ).join('')
+    }</tr>`;
+  }
+
+  /* ── 切換頁籤 ── */
+  function setTab(tabId) {
+    activeTabId = tabId;
+    // 更新頁籤 active 狀態
+    document.querySelectorAll('.filter-tab').forEach((btn, i) => {
+      btn.classList.toggle('active', TABS[i].id === tabId);
+    });
+    renderBody();
+  }
+
+  /* ── 渲染表格內容 ── */
+  function renderBody() {
+    // 過濾資料列（'all' 頁籤顯示全部）
+    const isAllTab = activeTabId === 'all';
+    const filtered = isAllTab ? ROWS : ROWS.filter(r => r.tabId === activeTabId);
+
+    if (filtered.length === 0) {
+      document.getElementById('tableBody').innerHTML =
+        `<tr class="empty-row"><td colspan="${COLUMNS.length}">目前沒有資料</td></tr>`;
+      return;
+    }
+
+    document.getElementById('tableBody').innerHTML = filtered.map(row => {
+      const cells = COLUMNS.map(col => {
+        const val = row[col.key] ?? '';
+        const alignClass = col.align ? ` align-${col.align}` : '';
+
+        // 徽章模式
+        if (col.badge) {
+          const style = (typeof BADGE_STYLES !== 'undefined' && BADGE_STYLES[val])
+            ? `background:${BADGE_STYLES[val].bg};color:${BADGE_STYLES[val].color}`
+            : 'background:var(--bg);color:var(--sub)';
+          return `<td class="${alignClass.trim()}"><span class="cell-badge" style="${style}">${val}</span></td>`;
+        }
+
+        return `<td class="${alignClass.trim()}">${val}</td>`;
+      }).join('');
+
+      return `<tr>${cells}</tr>`;
+    }).join('');
+  }
+
+  /* ── 初始化 ── */
+  buildTabs();
+  buildHead();
+  renderBody();
+</script>
+</body>
+</html>

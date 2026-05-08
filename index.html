@@ -419,65 +419,7 @@
     </div>
 
     <!-- 遊戲紀錄（共用：首頁 / 人才榜 / 收入榜）-->
-    <div class="settings-card">
-      <div class="settings-card-header" onclick="toggleSection('gameRecord')">
-        <div class="settings-card-header-left">
-          <span>📊 遊戲紀錄</span>
-        </div>
-        <span class="settings-card-toggle" id="gameRecordToggle">▲ 收合</span>
-      </div>
-      <div id="gameRecordBody">
-        <div class="settings-card-body sr-body">
-          <div class="sr-row">
-            <label class="sr-label">紀錄日期</label>
-            <div class="sr-date-wrap">
-              <input type="date" id="srDate" class="sr-input" oninput="saveSharedRecord()">
-              <button class="sr-today-btn" onclick="srSetToday()">今日</button>
-            </div>
-          </div>
-          <div class="sr-row">
-            <label class="sr-label">最高能力</label>
-            <input type="number" id="srAbility" class="sr-input sr-num" min="0" placeholder=""
-              oninput="saveSharedRecord()">
-          </div>
-          <div class="sr-row">
-            <label class="sr-label">最高收入</label>
-            <input type="number" id="srMaxIncome" class="sr-input sr-num" min="0" placeholder=""
-              oninput="saveSharedRecord()">
-          </div>
-          <div class="sr-sub-group">
-            <div class="sr-row">
-              <label class="sr-label">店鋪總收入</label>
-              <input type="number" id="srStore" class="sr-input sr-num" min="0" placeholder=""
-                oninput="saveSharedRecord()">
-            </div>
-            <div class="sr-row">
-              <label class="sr-label">作品總收入</label>
-              <input type="number" id="srWork" class="sr-input sr-num" min="0" placeholder=""
-                oninput="saveSharedRecord()">
-            </div>
-            <div class="sr-row">
-              <label class="sr-label">關卡收入</label>
-              <input type="number" id="srStage" class="sr-input sr-num" min="0" placeholder=""
-                oninput="saveSharedRecord()">
-            </div>
-            <div class="sr-row">
-              <label class="sr-label">未加成收入<span class="sr-auto-badge">自動</span></label>
-              <input type="number" id="srBase" class="sr-input sr-num" readonly tabindex="-1">
-            </div>
-          </div>
-          <div class="sr-row sr-memo-row">
-            <label class="sr-label">備忘文字</label>
-            <textarea id="srMemo" class="sr-memo" rows="3" placeholder="本次榜單備忘事項…"
-              oninput="saveSharedRecord()"></textarea>
-          </div>
-        </div>
-        <div class="autosave-hint">
-          <span class="autosave-dot"></span>
-          <span>資料三頁共用 — 在人才榜或收入榜修改，首頁即時同步</span>
-        </div>
-      </div>
-    </div>
+    <div id="gameRecordContainer"></div>
 
     <!-- 人才管理 -->
     <div class="settings-card">
@@ -550,17 +492,22 @@
   <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="handleImportFile(this)">
 
   <script src="data/settings-store.js"></script>
+  <script src="shared/game-record.js"></script>
   <script>
     /* ======================================================
      * 公告輪播 
      * ====================================================== */
     const announcements = [
-      { date: '2026-05-04', type: 'improve', text: '優化 表單輸入模式，使用鍵盤 ⭡ ⭣ ⭠ ⭢ 快速切換輸入格' },
+      { date: '2026-05-08', type: 'beta', text: '施工 人才、藝人資訊 中' },
+      { date: '2026-05-08', type: 'feature', text: '新增 體力恢復時間表' },
+      { date: '2026-05-08', type: 'improve', text: '優化 側邊選單收合' },
+      { date: '2026-05-08', type: 'improve', text: '優化 遊戲紀錄 UI 呈現' },
+      { date: '2026-05-04', type: 'improve', text: '優化 表單輸入模式，使用 ⭡ ⭣ ⭠ ⭢ 快速切換輸入格' },
       { date: '2026-05-01', type: 'info', text: '網頁全新改版' },
-      { date: '2026-05-01', type: 'feature', text: '新增 各項升級 的 藝人-唱聲' },
-      { date: '2026-04-29', type: 'feature', text: '新增 各項升級 的 澡堂-技師鍛鍊' },
-      { date: '2026-04-28', type: 'feature', text: '新增 各項升級 的 農田-店舖研究' },
-      { date: '2026-04-22', type: 'warning', text: '手癢持續增添新功能中！體驗期間恐觸發『暫存遺失』事件，填寫大量數據前請先有心理準備 (╯°▽°)╯ ┻┻' },
+      { date: '2026-05-01', type: 'feature', text: '新增 藝人-唱聲' },
+      { date: '2026-04-29', type: 'feature', text: '新增 澡堂-技師鍛鍊' },
+      { date: '2026-04-28', type: 'feature', text: '新增 農田-店舖研究' },
+      { date: '2026-04-22', type: 'warning', text: '手癢持續增添新功能中！ (╯°▽°)╯ ┻┻' },
     ];
 
     const annColors = {
@@ -844,6 +791,7 @@
     };
 
     /* ── 頁面初始化 ── */
+    renderGameRecordCard({ collapsed: false });
     buildTalentPanel();
     buildArtistPanel();
     buildDataSummary();

@@ -212,8 +212,8 @@
         </div>
         <div class="guide-step">
           <div class="step-num">5</div>
-          <div class="step-text"><strong>補充關聯人才</strong><br>
-            相關人才目前尚未填入，請在 <code>data/artist-singing-data.js</code> 的 <code>SINGING_TALENT_MAP</code> 填寫每位藝人對應的人才清單。</div>
+          <div class="step-text"><strong>查看相關人才</strong><br>
+            相關人才欄位自動從 <code>data/talent-artist-data.js</code> 的 <code>TALENT_ARTIST_MAP</code> 反推，統一在該檔維護即可。</div>
         </div>
       </div>
     </div>
@@ -265,7 +265,17 @@
 
 <script src="../data/settings-store.js"></script>
 <script src="../data/artist-singing-data.js"></script>
+<script src="../data/talent-artist-data.js"></script>
 <script>
+/* ── 藝人 → 關聯人才反查表（由 TALENT_ARTIST_MAP 自動推導）── */
+const _artistTalentLookup = {};
+TALENT_ARTIST_MAP.forEach(({ talent, artists }) => {
+  artists.forEach(a => {
+    if (!_artistTalentLookup[a]) _artistTalentLookup[a] = [];
+    if (!_artistTalentLookup[a].includes(talent)) _artistTalentLookup[a].push(talent);
+  });
+});
+
 /* =====================================================
  * 藝人-唱聲 主邏輯
  * state 格式：{ artistName: [ {cost:'', gain:''}, ... ] }
@@ -485,7 +495,7 @@ function buildTable() {
     // 相關人才
     const tdT = document.createElement('td');
     tdT.className = 'col-talent';
-    const talents = SINGING_TALENT_MAP[name] || [];
+    const talents = _artistTalentLookup[name] || [];
     tdT.innerHTML = `<div class="talent-badges">${renderTalentBadgesHtml(talents)}</div>`;
     tr.appendChild(tdT);
 
